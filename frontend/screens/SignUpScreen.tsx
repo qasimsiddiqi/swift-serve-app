@@ -1,13 +1,32 @@
-import { Platform, StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native'
+import { Platform, StyleSheet, Text, TouchableOpacity, View, Image, Alert } from 'react-native'
 import React from 'react'
 import { Button, Dialog, IconButton, PaperProvider, Portal, TextInput } from 'react-native-paper';
 import { ScrollView } from 'react-native-gesture-handler';
 import { SelectList } from 'react-native-dropdown-select-list';
 import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
 import moment from 'moment';
 import DatePicker from 'react-native-date-picker';
+import { login, register } from '../constants/apiService';
 
 const SignUpScreen = ({ navigation }: any) => {
+
+  const serviceCategory = [
+    { key: '1', value: 'Not Specified' },
+    { key: '2', value: 'Barbers' },
+    { key: '3', value: 'Gents Tailors' },
+    { key: '4', value: 'Mobile Repairing' },
+    { key: '5', value: 'Ladies Salons' },
+    { key: '6', value: 'Ladies Tailors' },
+    { key: '7', value: 'Electricians' },
+    { key: '8', value: 'Plumbers' },
+    { key: '9', value: 'Mechanics' },
+  ];
+
+  const accountType = [
+    { key: '1', value: 'Customer' },
+    { key: '2', value: 'Vendor' }
+  ];
 
   const [fullName, setFullName] = React.useState('');
   const [email, setEmail] = React.useState('');
@@ -15,6 +34,8 @@ const SignUpScreen = ({ navigation }: any) => {
   const [reEnterPassword, setReEnterPassword] = React.useState('');
   const [visible, setVisible] = React.useState(false);
   const [selected, setSelected] = React.useState("");
+  const [selectedAccountType, setSelectedAccountType] = React.useState('1');
+  const [selectedServiceCategory, setSelectedServiceCategory] = React.useState('');
   const [isDatePickerVisible, setDatePickerVisibility] = React.useState(false);
   const [birthDate, setBirthDate] = React.useState('');
   const [image, setImage] = React.useState<string | null>(null);
@@ -28,11 +49,6 @@ const SignUpScreen = ({ navigation }: any) => {
     navigation.navigate('LoginScreen')
   }
 
-  const accountType = [
-    { key: '1', value: 'Customer' },
-    { key: '2', value: 'Vendor' }
-  ];
-
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -45,7 +61,26 @@ const SignUpScreen = ({ navigation }: any) => {
     console.log(result);
 
     if (!result.canceled) {
-      setImage(result.assets[0].uri);
+      const imageUri = result.assets[0].uri;
+      const base64Image = await FileSystem.readAsStringAsync(imageUri, {
+        encoding: FileSystem.EncodingType.Base64,
+    });
+
+    console.log(base64Image);
+    setImage(imageUri);
+    }
+  };
+
+  const handleRegister = async () => {
+    try {
+      const data = await register(email, password);
+      console.log("Signup response---->", data.status)
+      if (data.status === 201) {
+        navigateToLoginScreen()
+        Alert.alert('Sign up Successful');
+      }
+    } catch (error) {
+      Alert.alert('Sign up Failed');
     }
   };
 
@@ -88,7 +123,7 @@ const SignUpScreen = ({ navigation }: any) => {
             <Text style={{ marginTop: 20, marginLeft: 5, fontSize: 14 }}>Account Type: </Text>
             <SelectList
               // onSelect={() => alert(selected)}
-              setSelected={setSelected}
+              setSelected={setSelectedAccountType}
               data={accountType}
               arrowicon={<IconButton icon={'chevron-down'} size={20} style={{ alignSelf: 'center', marginLeft: 0 }} />}
               searchicon={<IconButton icon={'chevron-down'} size={10} style={{}} />}
@@ -97,14 +132,29 @@ const SignUpScreen = ({ navigation }: any) => {
               inputStyles={{ fontSize: 16, textAlign: 'center' }}
               defaultOption={{ key: '1', value: 'Customer' }}   //default selected option
             />
+            {selectedAccountType === '2' && (
+              <>
+                <Text style={{ marginTop: 20, marginLeft: 5, fontSize: 14 }}>Service Category: </Text>
+                <SelectList
+                  setSelected={setSelectedServiceCategory}
+                  data={serviceCategory}
+                  arrowicon={<IconButton icon={'chevron-down'} size={20} style={{ alignSelf: 'center', marginLeft: 0 }} />}
+                  searchicon={<IconButton icon={'chevron-down'} size={10} style={{}} />}
+                  search={false}
+                  boxStyles={{ borderRadius: 0, width: '90%', marginTop: 20, height: 50 }} //override default styles
+                  inputStyles={{ fontSize: 16, textAlign: 'center' }}
+                  defaultOption={{ key: '1', value: 'Not Specified' }}   //default selected option
+                />
+              </>
+            )}
             <Text style={{ marginTop: 20, marginLeft: 5, fontSize: 14 }}>Profile Picture:  </Text>
             <Button onPress={pickImage}>Upload Photo</Button>
             <View style={styles.imageContainer}>
-            {image && <Image source={{ uri: image }} style={styles.image} />}
+              {image && <Image source={{ uri: image }} style={styles.image} />}
             </View>
             <View>
               <View style={{ alignItems: 'center' }}>
-                <Button onPress={showDialog} style={{ marginTop: 20, backgroundColor: 'darkseagreen' }}><Text style={{ color: 'white' }}>Register</Text></Button>
+                <Button onPress={handleRegister} style={{ marginTop: 20, backgroundColor: 'darkseagreen' }}><Text style={{ color: 'white' }}>Register</Text></Button>
                 <Text style={{ marginTop: 10 }}>Already have an account? </Text>
                 <TouchableOpacity style={{ marginTop: 10 }} onPress={navigateToLoginScreen}><Text style={{ textDecorationLine: 'underline' }}>Login</Text></TouchableOpacity>
               </View>
