@@ -1,9 +1,10 @@
-import { Dimensions, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View , Image} from 'react-native'
+import { Dimensions, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View , Image, Alert} from 'react-native'
 import React from 'react'
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { Appbar, IconButton, Drawer, Portal, Modal, TextInput, RadioButton, Button } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
+import { createAdsPost } from '../constants/apiService';
 
 const { width } = Dimensions.get('window');
 const { height } = Dimensions.get('window');
@@ -17,6 +18,8 @@ const VendorAds = ({ navigation }: any) => {
     const [serviceDetails, setServiceDetails] = React.useState('');
     const [radioChecked, setRadioChecked] = React.useState('first');
     const [images, setImages] = React.useState<string []>([]);
+    const [location, setLocation] = React.useState<any>('');
+    const [user, setUser] = React.useState<any>('');
 
     const showAdModal = () => setAdModalVisible(true);
     const hideAdModal = () => setAdModalVisible(false);
@@ -91,6 +94,18 @@ const VendorAds = ({ navigation }: any) => {
         }
     };
 
+    const handleCreatePost = async () => {
+        const adsPost = { serviceName, serviceDetails, radioChecked, images, location, user };
+    
+        try {
+          const response = await createAdsPost(adsPost);
+          console.log("Res",response)
+          Alert.alert('Success', 'Ads post created successfully.');
+        } catch (error:any) {
+          Alert.alert('Error', error.message);
+        }
+      };
+
     return (
         <SafeAreaView style={styles.container}>
             <View>
@@ -149,6 +164,7 @@ const VendorAds = ({ navigation }: any) => {
                                 {images.map((img, index) => (
                                         <Image key={index} source={{ uri: img }} style={styles.image} />
                                     ))}
+                                    <Button onPress={handleCreatePost}>Create</Button>
                                 </View>
                             </ScrollView>
                         </View>

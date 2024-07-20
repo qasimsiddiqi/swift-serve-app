@@ -34,7 +34,7 @@ const SignUpScreen = ({ navigation }: any) => {
   const [reEnterPassword, setReEnterPassword] = React.useState('');
   const [visible, setVisible] = React.useState(false);
   const [selected, setSelected] = React.useState("");
-  const [selectedAccountType, setSelectedAccountType] = React.useState('1');
+  const [selectedAccountType, setSelectedAccountType] = React.useState('');
   const [selectedServiceCategory, setSelectedServiceCategory] = React.useState('');
   const [isDatePickerVisible, setDatePickerVisibility] = React.useState(false);
   const [birthDate, setBirthDate] = React.useState('');
@@ -73,13 +73,14 @@ const SignUpScreen = ({ navigation }: any) => {
 
   const handleRegister = async () => {
     try {
-      const data = await register(email, password);
-      console.log("Signup response---->", data.status)
+      const data = await register(email, fullName, password, "vendor",  ["category1", "category2"], image);
+      console.log("Signup response:", data);
       if (data.status === 201) {
-        navigateToLoginScreen()
+        navigateToLoginScreen();
         Alert.alert('Sign up Successful');
       }
     } catch (error) {
+      console.error("Error during sign up:", error); // Log the error
       Alert.alert('Sign up Failed');
     }
   };
