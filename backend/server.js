@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const authRoutes = require('./routes/auth');
 const app = express();
-
+const cors = require('cors')
 const port = process.env.PORT || 5000;
 
 // Your MongoDB connection string
@@ -11,7 +11,7 @@ const dbURI = process.env.MONGO_DB_URI;
 // Middleware
 app.use(express.json());
 app.use('/api/auth', authRoutes);
-
+app.use(cors())
 // Cloud db setup
 // mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true })
 //     .then(() => console.log('Connected to MongoDB'))
