@@ -1,9 +1,11 @@
-import { Dimensions, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View , Image} from 'react-native'
+import { Dimensions, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View, Image, Alert } from 'react-native'
 import React from 'react'
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { Appbar, IconButton, Drawer, Portal, Modal, TextInput, RadioButton, Button } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
+import { createAdsPost } from '../constants/apiService';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width } = Dimensions.get('window');
 const { height } = Dimensions.get('window');
@@ -15,8 +17,9 @@ const VendorAds = ({ navigation }: any) => {
     const [adModalVisible, setAdModalVisible] = React.useState(false);
     const [serviceName, setServiceName] = React.useState('');
     const [serviceDetails, setServiceDetails] = React.useState('');
-    const [radioChecked, setRadioChecked] = React.useState('first');
-    const [images, setImages] = React.useState<string []>([]);
+    const [serviceType, setServiceType] = React.useState('homeBase');
+    const [images, setImages] = React.useState<string[]>([]);
+    const [location, setLocation] = React.useState<any>('');
 
     const showAdModal = () => setAdModalVisible(true);
     const hideAdModal = () => setAdModalVisible(false);
@@ -91,6 +94,22 @@ const VendorAds = ({ navigation }: any) => {
         }
     };
 
+    const handleCreatePost = async () => {
+        try {
+            const userDetails = await AsyncStorage.getItem('userDetails');
+            if (userDetails !== null) {
+                const userResponse = JSON.parse(userDetails); // Parse the JSON string back to an object
+                const user = userResponse?._id;
+                const adsPost = { serviceName, serviceDetails, serviceType, images, location, user };
+                const response = await createAdsPost(adsPost);
+                Alert.alert('Success', 'Ads post created successfully.');
+            }
+
+        } catch (error: any) {
+            Alert.alert('Error', error.message);
+        }
+    };
+
     return (
         <SafeAreaView style={styles.container}>
             <View>
@@ -118,37 +137,38 @@ const VendorAds = ({ navigation }: any) => {
                                 <Text style={{ marginTop: 20, fontSize: 16 }}>Service Type: </Text>
                                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                     <RadioButton
-                                        value="first"
-                                        status={radioChecked === 'first' ? 'checked' : 'unchecked'}
-                                        onPress={() => setRadioChecked('first')}
+                                        value="homeBase"
+                                        status={serviceType === 'homeBase' ? 'checked' : 'unchecked'}
+                                        onPress={() => setServiceType('homeBase')}
                                         color='green'
                                     />
-                                    <Text onPress={() => setRadioChecked('first')} style={{ marginLeft: 8, fontSize: 16 }}>Home Base</Text>
+                                    <Text onPress={() => setServiceType('homeBase')} style={{ marginLeft: 8, fontSize: 16 }}>Home Base</Text>
                                 </View>
                                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                     <RadioButton
-                                        value="second"
-                                        status={radioChecked === 'second' ? 'checked' : 'unchecked'}
-                                        onPress={() => setRadioChecked('second')}
+                                        value="shopBase"
+                                        status={serviceType === 'shopBase' ? 'checked' : 'unchecked'}
+                                        onPress={() => setServiceType('shopBase')}
                                         color='green'
                                     />
-                                    <Text onPress={() => setRadioChecked('second')} style={{ marginLeft: 8, fontSize: 16 }}>Shop Base</Text>
+                                    <Text onPress={() => setServiceType('shopBase')} style={{ marginLeft: 8, fontSize: 16 }}>Shop Base</Text>
                                 </View>
                                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                     <RadioButton
-                                        value="third"
-                                        status={radioChecked === 'third' ? 'checked' : 'unchecked'}
-                                        onPress={() => setRadioChecked('third')}
+                                        value="both"
+                                        status={serviceType === 'both' ? 'checked' : 'unchecked'}
+                                        onPress={() => setServiceType('both')}
                                         color='green'
                                     />
-                                    <Text onPress={() => setRadioChecked('third')} style={{ marginLeft: 8, fontSize: 16 }}>Both</Text>
+                                    <Text onPress={() => setServiceType('both')} style={{ marginLeft: 8, fontSize: 16 }}>Both</Text>
                                 </View>
                                 <Text style={{ marginTop: 20, fontSize: 16 }}>Media: </Text>
                                 <Button onPress={pickImage}>Upload Photo</Button>
                                 <View style={styles.imageContainer}>
-                                {images.map((img, index) => (
+                                    {images.map((img, index) => (
                                         <Image key={index} source={{ uri: img }} style={styles.image} />
                                     ))}
+                                    <Button onPress={handleCreatePost}>Create</Button>
                                 </View>
                             </ScrollView>
                         </View>
@@ -288,10 +308,10 @@ const styles = StyleSheet.create({
         width: 200,
         height: 200,
         margin: 10
-      },
-      imageContainer: {
+    },
+    imageContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'center',
-      }
+    }
 })
