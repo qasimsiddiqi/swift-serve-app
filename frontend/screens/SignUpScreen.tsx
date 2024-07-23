@@ -24,8 +24,8 @@ const SignUpScreen = ({ navigation }: any) => {
   ];
 
   const accountType = [
-    { key: '1', value: 'Customer' },
-    { key: '2', value: 'Vendor' }
+    { key: '1', value: 'customer' },
+    { key: '2', value: 'vendor' }
   ];
 
   const [fullName, setFullName] = React.useState('');
@@ -64,23 +64,28 @@ const SignUpScreen = ({ navigation }: any) => {
       const imageUri = result.assets[0].uri;
       const base64Image = await FileSystem.readAsStringAsync(imageUri, {
         encoding: FileSystem.EncodingType.Base64,
-    });
+      });
 
-    console.log(base64Image);
-    setImage(imageUri);
+      console.log(base64Image);
+      setImage(imageUri);
     }
   };
 
+
   const handleRegister = async () => {
     try {
-      const data = await register(email, fullName, password, "vendor",  ["category1", "category2"], image);
-      console.log("Signup response:", data);
-      if (data.status === 201) {
+      const selectedAccountTypeValue = accountType.find(item => item.key === selectedAccountType)?.value || '';
+      const selectedServiceCategoryValues = serviceCategory.filter(item => selectedServiceCategory.includes(item.key)).map(item => item.value);
+
+      const response = await register(email, fullName, password, selectedAccountTypeValue, selectedServiceCategoryValues, image);
+      // console.log("STATUS CODE------------>", response.status);
+      if (response.status === 201) {
+        // console.log("Inside navigate to login screen------------>");
         navigateToLoginScreen();
         Alert.alert('Sign up Successful');
       }
     } catch (error) {
-      console.error("Error during sign up:", error); // Log the error
+      // console.error("Error during sign up:", error); // Log the error
       Alert.alert('Sign up Failed');
     }
   };

@@ -3,10 +3,10 @@ const { Schema } = mongoose;
 
 const adsPostSchema = new Schema({
   serviceName: { type: String, required: true },
-  serviceDetail: { type: String, required: true },
+  serviceDetails: { type: String, required: true },
   serviceType: { type: String, required: true },
   images: { type: [String], validate: [arrayLimit, 'An ad can have a maximum of 3 images.'] },
-  location: { type: String, required: true },
+  location: { type: String },
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }
 });
 

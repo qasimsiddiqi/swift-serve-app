@@ -1,4 +1,4 @@
-import { Platform, SafeAreaView, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
+import { Alert, Platform, SafeAreaView, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
 import React, { Component } from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Avatar, IconButton, ToggleButton, Text, Button, Portal, Modal, TextInput, Menu, MD3Colors } from 'react-native-paper';
@@ -9,8 +9,11 @@ import FontAwesome, { SolidIcons, RegularIcons, BrandIcons } from 'react-native-
 import Icon from 'react-native-fontawesome';
 import { MaterialIcons } from '@expo/vector-icons';
 import StarRating from '../components/StarRating';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createBooking, createReview } from '../constants/apiService';
 
-const AdScreen = ({ navigation }: any) => {
+const AdScreen = ({ route, navigation }: any) => {
+  const { adDetails } = route.params;
 
   const hours = [
     { key: '1', value: 'Hour' },
@@ -107,6 +110,7 @@ const AdScreen = ({ navigation }: any) => {
   const [visible, setVisible] = React.useState(false);
   const [selected, setSelected] = React.useState("");
   const [starRating, setStarRating] = React.useState(0);
+  const [review, setReview] = React.useState('');
 
   const handleDayPress = (day: { dateString: React.SetStateAction<string>; }) => {
     setSelectedDate(day.dateString);
@@ -148,6 +152,41 @@ const AdScreen = ({ navigation }: any) => {
     }
   }
 
+  const handleCreateBooking = async () => {
+    try {
+      const userDetails = await AsyncStorage.getItem('userDetails');
+      if (userDetails !== null) {
+        const userResponse = JSON.parse(userDetails); // Parse the JSON string back to an object
+        const userId = userResponse?._id;
+        const bookingDetails = { user: userId, adsPost: adDetails._id, serviceName: adDetails.serviceName, date: selectedDate, time: selected };
+        const response = await createBooking(bookingDetails);
+        console.log("Res", response)
+        Alert.alert('Success', 'Booked successfully.');
+      }
+
+    } catch (error: any) {
+      Alert.alert('Error', error.message);
+    }
+  };
+
+  const handelCreateReview = async () => {
+    try {
+      const userDetails = await AsyncStorage.getItem('userDetails');
+      if (userDetails !== null) {
+        const userResponse = JSON.parse(userDetails); // Parse the JSON string back to an object
+        const userId = userResponse?._id;
+        const reviewDetails = { user: userId, adsPost: adDetails._id, rating: starRating, comments: review, image: '' };
+        const response = await createReview(reviewDetails);
+        console.log("Res", response)
+        Alert.alert('Success', 'Thanks for reviewing.');
+      }
+
+    } catch (error: any) {
+      Alert.alert('Error', error.message);
+    }
+  };
+
+
   return (
     <SafeAreaProvider>
       <ScrollView>
@@ -157,7 +196,7 @@ const AdScreen = ({ navigation }: any) => {
               visible={bookingModalvisible}
               onDismiss={hideBookingModal}>
               <View style={styles.RatingModal}>
-                  <Text style={{ textAlign: 'center', fontSize: 18, fontWeight: 'bold' }}>Book a slot now</Text>
+                <Text style={{ textAlign: 'center', fontSize: 18, fontWeight: 'bold' }}>Book a slot now</Text>
                 <ScrollView>
                   <Text style={{ marginTop: 10, fontSize: 16 }}>Requested Service: </Text>
                   <TextInput style={{ marginTop: 10, height: 45 }}></TextInput>
@@ -211,7 +250,7 @@ const AdScreen = ({ navigation }: any) => {
                       defaultOption={{ key: '1', value: 'Am' }}   //default selected option
                     />
                   </View>
-                  <Button mode='contained' style={{ backgroundColor: 'darkseagreen', paddingTop: 5, marginRight: 90, marginLeft: 90, marginTop: 40 }}><Text>Book Now</Text></Button>
+                  <Button onPress={handleCreateBooking} mode='contained' style={{ backgroundColor: 'darkseagreen', paddingTop: 5, marginRight: 90, marginLeft: 90, marginTop: 40 }}><Text>Book Now</Text></Button>
                 </ScrollView>
               </View>
             </Modal>
@@ -222,61 +261,61 @@ const AdScreen = ({ navigation }: any) => {
                 <SafeAreaView style={{ flex: 1 }}>
                   <View style={{ alignItems: 'center' }}><Text style={{ fontSize: 18, fontWeight: 'bold' }}>How was this service?</Text></View>
                   <ScrollView>
-                  <View style={styles.ratingContainer}>
-                    <Text style={styles.heading}>Tap to rate</Text>
-                    <View style={styles.stars}>
-                      <TouchableOpacity onPress={() => setStarRating(1)}>
+                    <View style={styles.ratingContainer}>
+                      <Text style={styles.heading}>Tap to rate</Text>
+                      <View style={styles.stars}>
+                        <TouchableOpacity onPress={() => setStarRating(1)}>
+                          <MaterialIcons
+                            name={starRating >= 1 ? 'star' : 'star-border'}
+                            size={32}
+                            style={starRating >= 1 ? styles.starSelected : styles.starUnselected}
+                          />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => setStarRating(2)}>
+                          <MaterialIcons
+                            name={starRating >= 2 ? 'star' : 'star-border'}
+                            size={32}
+                            style={starRating >= 2 ? styles.starSelected : styles.starUnselected}
+                          />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => setStarRating(3)}>
+                          <MaterialIcons
+                            name={starRating >= 3 ? 'star' : 'star-border'}
+                            size={32}
+                            style={starRating >= 3 ? styles.starSelected : styles.starUnselected}
+                          />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => setStarRating(4)}>
+                          <MaterialIcons
+                            name={starRating >= 4 ? 'star' : 'star-border'}
+                            size={32}
+                            style={starRating >= 4 ? styles.starSelected : styles.starUnselected}
+                          />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => setStarRating(5)}>
+                          <MaterialIcons
+                            name={starRating >= 5 ? 'star' : 'star-border'}
+                            size={32}
+                            style={starRating >= 5 ? styles.starSelected : styles.starUnselected}
+                          />
+                        </TouchableOpacity>
+                      </View>
+                      <Text style={{ fontSize: 16, fontWeight: 'bold', marginTop: 20 }}>review/comments:</Text>
+                      <TextInput onChangeText={(e) => setReview(e)} style={{ marginTop: 20, width: "90%", height: 100, padding: 0 }}></TextInput>
+                      <Text style={{ fontSize: 16, fontWeight: 'bold', marginTop: 20 }}>Add Media:</Text>
+                      <View style={{ flexDirection: 'row', marginTop: 20 }}>
                         <MaterialIcons
-                          name={starRating >= 1 ? 'star' : 'star-border'}
-                          size={32}
-                          style={starRating >= 1 ? styles.starSelected : styles.starUnselected}
+                          name='camera-alt'
+                          size={30}
+                          style={{ paddingRight: 30 }}
                         />
-                      </TouchableOpacity>
-                      <TouchableOpacity onPress={() => setStarRating(2)}>
                         <MaterialIcons
-                          name={starRating >= 2 ? 'star' : 'star-border'}
-                          size={32}
-                          style={starRating >= 2 ? styles.starSelected : styles.starUnselected}
+                          name='file-upload'
+                          size={30}
                         />
-                      </TouchableOpacity>
-                      <TouchableOpacity onPress={() => setStarRating(3)}>
-                        <MaterialIcons
-                          name={starRating >= 3 ? 'star' : 'star-border'}
-                          size={32}
-                          style={starRating >= 3 ? styles.starSelected : styles.starUnselected}
-                        />
-                      </TouchableOpacity>
-                      <TouchableOpacity onPress={() => setStarRating(4)}>
-                        <MaterialIcons
-                          name={starRating >= 4 ? 'star' : 'star-border'}
-                          size={32}
-                          style={starRating >= 4 ? styles.starSelected : styles.starUnselected}
-                        />
-                      </TouchableOpacity>
-                      <TouchableOpacity onPress={() => setStarRating(5)}>
-                        <MaterialIcons
-                          name={starRating >= 5 ? 'star' : 'star-border'}
-                          size={32}
-                          style={starRating >= 5 ? styles.starSelected : styles.starUnselected}
-                        />
-                      </TouchableOpacity>
+                      </View>
                     </View>
-                    <Text style={{ fontSize: 16, fontWeight: 'bold', marginTop: 20 }}>review/comments:</Text>
-                    <TextInput style={{ marginTop: 20, width: "90%", height: 100, padding:0 }}></TextInput>
-                    <Text style={{ fontSize: 16, fontWeight: 'bold', marginTop: 20 }}>Add Media:</Text>
-                    <View style={{ flexDirection: 'row', marginTop: 20 }}>
-                      <MaterialIcons
-                        name='camera-alt'
-                        size={30}
-                        style={{ paddingRight: 30 }}
-                      />
-                      <MaterialIcons
-                        name='file-upload'
-                        size={30}
-                      />
-                    </View>
-                  </View>
-                  <Button mode='contained' style={{ backgroundColor: 'darkseagreen', padding: 5, marginRight: 90, marginLeft: 90 }}><Text>Post</Text></Button>
+                    <Button onPress={handelCreateReview} mode='contained' style={{ backgroundColor: 'darkseagreen', padding: 5, marginRight: 90, marginLeft: 90 }}><Text>Post</Text></Button>
                   </ScrollView>
                 </SafeAreaView>
               </View>
@@ -304,12 +343,13 @@ const AdScreen = ({ navigation }: any) => {
             size={25}
             style={{ position: 'absolute', top: 200, right: 2 }}
           />
-          <Text variant='titleLarge' style={{ paddingTop: 5, paddingLeft: 5, fontWeight: 'bold' }}>Pit Stop</Text>
-          <Text variant='titleMedium' style={{ paddingTop: 5, paddingLeft: 5, fontWeight: 'bold' }}>Qasim Siddiqi</Text>
-          <IconButton icon='google-maps' style={{}} /><Text style={{ marginLeft: 30 }}>Store Location will appear here</Text>
-          <Text variant='titleMedium' style={{ paddingTop: 20, paddingLeft: 5, fontWeight: 'bold' }}>Description</Text>
-          <Text variant="bodyMedium" style={{ paddingTop: 5, paddingLeft: 5 }}>Description of Vendor and Service will appear here</Text>
+          <Text variant='titleLarge' style={{ paddingTop: 5, paddingLeft: 5, fontWeight: 'bold' }}>{adDetails.serviceName}</Text>
+          <Text variant='titleMedium' style={{ paddingTop: 5, paddingLeft: 5, fontWeight: 'bold' }}>{adDetails.vendorName}</Text>
+          <IconButton icon='google-maps' style={{}} /><Text style={{ marginLeft: 30 }}>{adDetails.location}</Text>
+          <Text variant='titleMedium' style={{ paddingTop: 20, paddingLeft: 5, fontWeight: 'bold' }}>{adDetails.serviceDetails}</Text>
+          <Text variant="bodyMedium" style={{ paddingTop: 5, paddingLeft: 5 }}>{adDetails.description}</Text>
           <Text variant='titleMedium' style={{ paddingTop: 20, paddingLeft: 5, fontWeight: 'bold' }}>Service Catalog</Text>
+          <Text variant="bodyMedium" style={{ paddingTop: 5, paddingLeft: 5 }}>{adDetails.serviceCatalog}</Text>
           <Text variant="bodyMedium" style={{ paddingTop: 5, paddingLeft: 5 }}>Complete Service Catalog of the Vendor will appear here</Text>
           <View style={{ borderColor: 'black', borderRadius: 5, paddingBottom: 20, borderWidth: 1, margin: 5, justifyContent: 'center' }}>
             <Text variant='titleMedium' style={{ paddingTop: 20, paddingLeft: 5, fontWeight: 'bold' }}>Reviews and Ratings</Text>
