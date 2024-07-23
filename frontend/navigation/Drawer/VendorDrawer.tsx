@@ -1,8 +1,9 @@
-import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Dimensions, StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native'
 import React from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Appbar, Drawer, IconButton } from 'react-native-paper'
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const { width } = Dimensions.get('window');
 const { height } = Dimensions.get('window');
@@ -74,38 +75,45 @@ const VendorDrawer = ({ navigation }: any) => {
                 <IconButton icon="menu" iconColor='black' mode='contained' style={styles.menuButton} onPress={toggleDrawer} />
             </Appbar.Header>
             <Animated.View style={[styles.drawer, drawerAnimatedStyle]}>
-                <Drawer.Item
-                    style={styles.drawerItem}
-                    icon="home"
-                    label="Home"
-                    active={active === 'first'}
-                    onPress={navigateToVendorHome}
-                    background={{ color: active === 'first' ? activeTintColor : inactiveTintColor }}
-                />
-                <Drawer.Item
-                    style={styles.drawerItem}
-                    icon="format-list-bulleted"
-                    label="My Bookings"
-                    active={active === 'second'}
-                    onPress={navigateToVendorBookings}
-                />
-                <Drawer.Item
-                    style={styles.drawerItem}
-                    icon="file-table-box-multiple"
-                    label="My Ads"
-                    active={active === 'third'}
-                    onPress={navigateToVendorAds}
-                />
-                <Drawer.Item
-                    style={styles.drawerItem}
-                    icon="account"
-                    label="Account"
-                    active={active === 'fourth'}
-                    onPress={() => setActive('fourth')}
-                />
-                <TouchableOpacity style={styles.closeDrawerButton} onPress={toggleDrawer}>
-                    <Text style={styles.closeDrawerButtonText}>Close Drawer</Text>
-                </TouchableOpacity>
+                <ScrollView>
+                    <Text>Welcome User</Text>
+                    <Image
+                        source={require('../../assets/SwiftServe Logo.png')}
+                        style={styles.logo}
+                    />
+                    <Drawer.Item
+                        style={styles.drawerItem}
+                        icon="home"
+                        label="Home"
+                        active={active === 'first'}
+                        onPress={navigateToVendorHome}
+                        background={{ color: active === 'first' ? activeTintColor : inactiveTintColor }}
+                    />
+                    <Drawer.Item
+                        style={styles.drawerItem}
+                        icon="format-list-bulleted"
+                        label="My Bookings"
+                        active={active === 'second'}
+                        onPress={navigateToVendorBookings}
+                    />
+                    <Drawer.Item
+                        style={styles.drawerItem}
+                        icon="file-table-box-multiple"
+                        label="My Ads"
+                        active={active === 'third'}
+                        onPress={navigateToVendorAds}
+                    />
+                    <Drawer.Item
+                        style={styles.drawerItem}
+                        icon="account"
+                        label="Account"
+                        active={active === 'fourth'}
+                        onPress={() => setActive('fourth')}
+                    />
+                    <TouchableOpacity style={styles.closeDrawerButton} onPress={toggleDrawer}>
+                        <Text style={styles.closeDrawerButtonText}>Close Drawer</Text>
+                    </TouchableOpacity>
+                </ScrollView>
             </Animated.View>
         </>
     )
@@ -114,6 +122,12 @@ const VendorDrawer = ({ navigation }: any) => {
 export default VendorDrawer
 
 const styles = StyleSheet.create({
+    logo: {
+        width: '50%',
+        height: 100,
+        resizeMode: 'contain',
+        marginBottom: 20,
+    },
     drawer: {
         position: 'absolute',
         top: 0,
@@ -136,6 +150,7 @@ const styles = StyleSheet.create({
     },
     closeDrawerButton: {
         marginTop: 20,
+        marginBottom: 20,
         padding: 10,
         backgroundColor: '#66cdaa',
         borderRadius: 5,
