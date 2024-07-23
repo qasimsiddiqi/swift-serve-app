@@ -1,9 +1,15 @@
-import { Dimensions, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View , Image} from 'react-native'
+import { Dimensions, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View, Image, Alert } from 'react-native'
 import React from 'react'
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
-import { Appbar, IconButton, Drawer, Portal, Modal, TextInput, RadioButton, Button } from 'react-native-paper';
+import { Appbar, IconButton, Drawer, Portal, Modal, TextInput, RadioButton, Button, Card } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
+import * as Location from 'expo-location';
+import { createAdsPost } from '../constants/apiService';
+import MapView, { Marker } from 'react-native-maps';
+import VendorDrawer from '../navigation/Drawer/VendorDrawer';
+import MapViewComponent from './MapViewComponent';
 
 const { width } = Dimensions.get('window');
 const { height } = Dimensions.get('window');
@@ -13,13 +19,21 @@ const VendorAds = ({ navigation }: any) => {
     const [active, setActive] = React.useState('');
     const [drawerOpen, setDrawerOpen] = React.useState(false);
     const [adModalVisible, setAdModalVisible] = React.useState(false);
+    const [mapViewVisible, setMapViewVisible] = React.useState(false);
     const [serviceName, setServiceName] = React.useState('');
     const [serviceDetails, setServiceDetails] = React.useState('');
+    const [servicePrice, setServicePrice] = React.useState('');
     const [radioChecked, setRadioChecked] = React.useState('first');
-    const [images, setImages] = React.useState<string []>([]);
+    const [images, setImages] = React.useState<string[]>([]);
+    const [user, setUser] = React.useState<any>('');
+    const [location, setLocation] = React.useState<Location.LocationObjectCoords | null>(null);
+    const [errorMsg, setErrorMsg] = React.useState('');
+    const [address, setAddress] = React.useState<string | null>(null);
 
     const showAdModal = () => setAdModalVisible(true);
     const hideAdModal = () => setAdModalVisible(false);
+    const showMapView = () => setMapViewVisible(true);
+    const hideMapView = () => setMapViewVisible(false);
 
     const toggleDrawer = () => {
         setDrawerOpen(!drawerOpen);
@@ -42,6 +56,20 @@ const VendorAds = ({ navigation }: any) => {
         setDrawerOpen(!drawerOpen);
         setActive(activeTintColor);
     }
+
+    const navigateToMaps = () => {
+        // navigation.setOptions({
+        //     params: { setLocation: handleSetLocation },
+        //   });
+        navigation.navigate('MapViewComponent',  { setLocation: handleSetLocation });
+        hideAdModal();
+    }
+
+    const handleSetLocation = (newLocation: any, newAddress: any) => {
+        setLocation(newLocation);
+        setAddress(newAddress);
+        showAdModal();
+      };
 
     const activeTintColor = 'green';
     const inactiveTintColor = 'black';
@@ -87,13 +115,50 @@ const VendorAds = ({ navigation }: any) => {
         console.log(result);
 
         if (!result.canceled) {
-            setImages((prevImages) => [...prevImages, result.assets[0].uri]);
+            const imageUri = result.assets[0].uri;
+            const base64Image = await FileSystem.readAsStringAsync(imageUri, {
+                encoding: FileSystem.EncodingType.Base64,
+            });
+            console.log(base64Image);
+            setImages((prevImages) => [...prevImages, imageUri]);
+        }
+    };
+
+    React.useEffect(() => {
+        (async () => {
+            let { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                setErrorMsg('Permission to access location was denied');
+                return;
+            }
+
+            let currentLocation = await Location.getCurrentPositionAsync({});
+            setLocation(currentLocation.coords);
+        })();
+    }, []);
+
+    let text = 'Waiting..';
+    if (errorMsg) {
+        text = errorMsg;
+    } else if (location) {
+        text = JSON.stringify(location);
+    }
+
+    const handleCreatePost = async () => {
+        const adsPost = { serviceName, serviceDetails, radioChecked, images, location, user };
+
+        try {
+            const response = await createAdsPost(adsPost);
+            console.log("Res", response)
+            Alert.alert('Success', 'Ads post created successfully.');
+        } catch (error: any) {
+            Alert.alert('Error', error.message);
         }
     };
 
     return (
         <SafeAreaView style={styles.container}>
-            <View>
+                <View>
                 <Portal>
                     <Modal
                         visible={adModalVisible}
@@ -114,6 +179,13 @@ const VendorAds = ({ navigation }: any) => {
                                     placeholderTextColor="grey"
                                     onChangeText={(serviceDetails) => setServiceDetails(serviceDetails)}
                                     style={{ marginTop: 10, height: 150 }}
+                                />
+                                <Text style={{ marginTop: 20, fontSize: 16 }}>Price: </Text>
+                                <TextInput
+                                    placeholder="Type the Service Price here"
+                                    placeholderTextColor="grey"
+                                    onChangeText={(servicePrice) => setServicePrice(servicePrice)}
+                                    style={{ marginTop: 10 }}
                                 />
                                 <Text style={{ marginTop: 20, fontSize: 16 }}>Service Type: </Text>
                                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -143,60 +215,38 @@ const VendorAds = ({ navigation }: any) => {
                                     />
                                     <Text onPress={() => setRadioChecked('third')} style={{ marginLeft: 8, fontSize: 16 }}>Both</Text>
                                 </View>
+                                <Text style={{ marginTop: 20, fontSize: 16 }}>Location: </Text>
+                                {address && <Text style={{ marginTop: 10, fontSize: 16 }}>{address}</Text>}
+                                <Button onPress={navigateToMaps}>Set Location</Button>
                                 <Text style={{ marginTop: 20, fontSize: 16 }}>Media: </Text>
                                 <Button onPress={pickImage}>Upload Photo</Button>
                                 <View style={styles.imageContainer}>
-                                {images.map((img, index) => (
+                                    {images.map((img, index) => (
                                         <Image key={index} source={{ uri: img }} style={styles.image} />
                                     ))}
                                 </View>
+                                <Button mode='contained' style={{backgroundColor:'darkseagreen'}} onPress={hideAdModal}>Create Ad</Button>
                             </ScrollView>
                         </View>
                     </Modal>
                 </Portal>
             </View>
             <View>
-                <Appbar.Header style={{ height: 30 }}>
-                    <IconButton icon="menu" iconColor='black' mode='contained' style={styles.menuButton} onPress={toggleDrawer} />
-                </Appbar.Header>
-                <Animated.View style={[styles.drawer, drawerAnimatedStyle]}>
-                    <Drawer.Item
-                        style={styles.drawerItem}
-                        icon="home"
-                        label="Home"
-                        active={active === 'first'}
-                        onPress={navigateToVendorHome}
-                    />
-                    <Drawer.Item
-                        style={styles.drawerItem}
-                        icon="format-list-bulleted"
-                        label="My Bookings"
-                        active={active === 'second'}
-                        onPress={navigateToVendorBookings}
-                    />
-                    <Drawer.Item
-                        style={styles.drawerItem}
-                        icon="file-table-box-multiple"
-                        label="My Ads"
-                        active={active === 'third'}
-                        onPress={navigateToVendorAds}
-                    />
-                    <Drawer.Item
-                        style={styles.drawerItem}
-                        icon="account"
-                        label="Account"
-                        active={active === 'fourth'}
-                        onPress={() => setActive('fourth')}
-                    />
-                    <TouchableOpacity style={styles.closeDrawerButton} onPress={toggleDrawer}>
-                        <Text style={styles.closeDrawerButtonText}>Close Drawer</Text>
-                    </TouchableOpacity>
-                </Animated.View>
+                <VendorDrawer navigation={navigation} />
                 <View style={styles.content}>
                     <Text style={styles.title}>My Ads</Text>
                     <TouchableOpacity style={styles.newAdButton} onPress={showAdModal}>
                         <Text style={styles.newAdButtonText}>Create a new Ad</Text>
                     </TouchableOpacity>
+                    <Card style={{width: '90%', marginTop: 10}}>
+                        <Card.Cover />
+                        <Card.Title title="Ad Name"/>
+                        <Card.Content>
+                            <Text>Price: </Text>
+                            <Text>Description: </Text>
+                            <Button mode='contained' style={{marginTop: 10, backgroundColor:'red', width: '50%'}}>Delete Ad</Button>
+                        </Card.Content>
+                    </Card>
                 </View>
             </View>
         </SafeAreaView>
@@ -288,10 +338,21 @@ const styles = StyleSheet.create({
         width: 200,
         height: 200,
         margin: 10
-      },
-      imageContainer: {
+    },
+    imageContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'center',
-      }
+    },
+    mapView: {
+        flex: 1
+    },
+    map: {
+        width: '90%',
+        height: '80%',
+    },
 })
+
+function setErrorMsg(arg0: string) {
+    throw new Error('Function not implemented.');
+}

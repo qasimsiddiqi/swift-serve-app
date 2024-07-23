@@ -6,12 +6,14 @@ import { ScrollView } from 'react-native-gesture-handler';
 import * as Location from 'expo-location';
 import AdCard from '../components/AdCard';
 import UserDrawer from '../navigation/Drawer/UserDrawer';
+import { Button } from 'react-native-paper';
 
-const LocationScreen = ({ navigation }: any) => {
-
-  const [location, setLocation] = React.useState<Location.LocationObjectCoords | null>(null);
+const MapViewComponent = ({navigation, route}: any) => {
+  const { setLocation } = route.params || {};
+  const [location, setInternalLocation] = React.useState<Location.LocationObjectCoords | null>(null);
   const [errorMsg, setErrorMsg] = React.useState('');
   const [address, setAddress] = React.useState<string | null>(null);
+  const [selectedLocation, setSelectedLocation] = React.useState(null);
 
   React.useEffect(() => {
     (async () => {
@@ -22,14 +24,17 @@ const LocationScreen = ({ navigation }: any) => {
       }
 
       let currentLocation = await Location.getCurrentPositionAsync({});
-      setLocation(currentLocation.coords);
+      setInternalLocation(currentLocation.coords);
       let reverseGeocode = await Location.reverseGeocodeAsync({
         latitude: currentLocation.coords.latitude,
         longitude: currentLocation.coords.longitude,
       });
       if (reverseGeocode.length > 0) {
         const addressObject = reverseGeocode[0];
-        setAddress(`${addressObject.street}, ${addressObject.city}, ${addressObject.region}`);
+        const street = addressObject.name || addressObject.street || 'Unknown street';
+        const city = addressObject.city || 'Unknown city';
+        const region = addressObject.region || 'Unknown region';
+        setAddress(`${street}, ${city}, ${region}`);
       }
     })();
   }, []);
@@ -41,41 +46,15 @@ const LocationScreen = ({ navigation }: any) => {
     text = JSON.stringify(location);
   }
 
-  const navigateToAdScreen = () => {
-    navigation.navigate('AdScreen')
-  }
-
-  const Venues = [
-    {
-      id: 1,
-      name: 'Pit Stop',
-      uri: 'https://img.freepik.com/premium-vector/piston-gear-logo-automotive-workshop-design-hexagon-shape-speed-shop-repair-garage_171487-401.jpg'
-    },
-    {
-      id: 2,
-      name: 'Tailor Shop',
-      uri: 'https://t4.ftcdn.net/jpg/03/69/03/07/360_F_369030788_LnS7DYA70VExiJT5QjnINHIKXQ9wUCcf.jpg'
-    },
-    {
-      id: 3,
-      name: 'Mobile Repairing',
-      uri: 'https://img.freepik.com/premium-vector/mobile-store-logo-design_23-2149750708.jpg'
-    },
-    {
-      id: 4,
-      name: 'Electrician for your house',
-      uri: 'https://camelotbanquets.com/wp-content/uploads/2020/01/0901-%C2%A9-KATANA-PHOTO.jpg'
-    },
-    {
-      id: 5,
-      name: 'Plumber for your house',
-      uri: 'https://ramyashotels.com/wp-content/uploads/2021/09/banquet-hall-trichy.jpg'
-    },
-  ];
+  const handleSetLocation = () => {
+    if (location && address) {
+      setLocation(location, address);
+      navigation.goBack();
+    }
+  };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <UserDrawer navigation={navigation} />
+    <SafeAreaView>
       <ScrollView>
         <View style={styles.mapContainer}>
           <MapView
@@ -100,41 +79,34 @@ const LocationScreen = ({ navigation }: any) => {
               />
             )}
           </MapView>
-        </View>
-        <View>
-          <ScrollView>
-            <Text style={{marginLeft: 5, marginTop: 10, fontWeight:'bold', fontSize:16}}>Current Location: </Text><Text style={{marginLeft:20, marginTop: 10, marginBottom: 10, fontSize: 16}}>{address ? address : text}</Text>
-            {
-              Venues?.map((item: any, index: any) => (
-                <AdCard key={index} data={item} navigation={navigateToAdScreen} />
-              ))
-            }
-          </ScrollView>
+          <View>
+            <Button onPress={handleSetLocation} style={styles.locationButton}><Text style = {styles.locationButtonText}>Set Location</Text></Button>
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
-  );
-};
+  )
+}
 
-export default LocationScreen;
+export default MapViewComponent
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
-    alignItems: 'center',
-    marginVertical: 10,
-  },
-  headerText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
   mapContainer: {
     flex: 1,
   },
   map: {
     width: Dimensions.get('window').width,
-    height: 300,
+    height: Dimensions.get('window').height - 70,
   },
-});
+  locationButton: {
+    backgroundColor: 'darkseagreen',
+    borderRadius: 0,
+    width: Dimensions.get('window').width,
+    height: 50
+  },
+  locationButtonText: {
+    color: 'white',
+    fontSize: 16,
+    
+  }
+})

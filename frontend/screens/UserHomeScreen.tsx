@@ -5,9 +5,11 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import LocationScreen from './LocationScreen';
 import MyBookings from './MyBookings';
 import { NavigationContainer } from '@react-navigation/native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { SelectList } from 'react-native-dropdown-select-list';
 import TabScreens from '../navigation/Bottom Tab Navigation/TabScreens';
+import UserDrawer from '../navigation/Drawer/UserDrawer';
+import VendorDrawer from '../navigation/Drawer/VendorDrawer';
 
 const UserHomeScreen = ({ navigation }: any) => {
   const Venues = [
@@ -80,7 +82,7 @@ const UserHomeScreen = ({ navigation }: any) => {
     navigation.navigate('TopRatedAdsScreen')
   }
   return (
-    <SafeAreaProvider>
+    <SafeAreaView>
       <View>
         <Portal>
           <Modal
@@ -148,16 +150,15 @@ const UserHomeScreen = ({ navigation }: any) => {
         </Portal>
       </View>
       <View style={styles.container}>
-        <Appbar.Header>
-          <IconButton icon="menu" iconColor='black' mode='contained' style={styles.menuButton} onPress={() => navigation.toggleDrawer()} />
-          <Searchbar
+        <UserDrawer navigation={navigation} />
+        <Searchbar
             placeholder="Search"
             onChangeText={setSearchQuery}
             value={searchQuery}
             style={styles.searchBar}
+            inputStyle={styles.searchInput}
           />
           <IconButton icon="filter-outline" onPress={showSearchModal} style={styles.filterButton} />
-        </Appbar.Header>
         <View style={styles.contentContainer}>
           <ScrollView>
             <View>
@@ -240,7 +241,7 @@ const UserHomeScreen = ({ navigation }: any) => {
           </ScrollView>
         </View>
       </View>
-    </SafeAreaProvider>
+    </SafeAreaView>
   )
 }
 
@@ -248,10 +249,10 @@ export default UserHomeScreen
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    // flex: 1
   },
   contentContainer: {
-    flex: 1,
+    // flex: 1,
     marginBottom: 50,
   },
   bottomNavigation: {
@@ -263,15 +264,23 @@ const styles = StyleSheet.create({
   searchBar: {
     backgroundColor: '#66cdaa',
     position: 'absolute',
-    marginTop: 0,
+    marginTop: 10,
     marginLeft: 95,
     width: '50%',
+    borderRadius: 10,
+    height: 40,
+    paddingBottom:0,
+  },
+  searchInput: {
+    fontSize: 16,
+    paddingBottom: 15, // Adjust this value to vertically center the text
+    lineHeight: 50,
   },
   filterButton: {
     backgroundColor: '#66cdaa',
     position: 'absolute',
     marginLeft: 310,
-    marginTop: 40,
+    marginTop: 10,
     borderRadius: 10,
   },
   menuButton: {

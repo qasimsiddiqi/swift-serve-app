@@ -62,7 +62,7 @@ const LoginScreen = ({ navigation }: any) => {
             <TouchableOpacity style={{ position: 'absolute', marginTop: 185 }}><Text style={{ textDecorationLine: 'underline' }}>Forgot Password?</Text></TouchableOpacity>
             <Text style={{ position: 'absolute', marginTop: 220 }}>Don't have an account?</Text>
             <TouchableOpacity style={{ position: 'absolute', marginTop: 240 }} onPress={navigateToSignUpScreen}><Text style={{ textDecorationLine: 'underline' }}>Sign Up</Text></TouchableOpacity>
-            <Button onPress={handleLogin} style={{ position: 'absolute', marginTop: 270, backgroundColor: 'darkseagreen' }}><Text style={{ fontSize: 16, color: 'white' }}>CLIENT LOGIN</Text></Button>
+            <Button onPress={navigateToUserHomeScreen} style={{ position: 'absolute', marginTop: 270, backgroundColor: 'darkseagreen' }}><Text style={{ fontSize: 16, color: 'white' }}>CLIENT LOGIN</Text></Button>
             <Button onPress={showVendorDialog} style={{ position: 'absolute', marginTop: 320, backgroundColor: 'darkseagreen' }}><Text style={{ fontSize: 16, color: 'white' }}>VENDOR LOGIN</Text></Button>
           </View>
         </View>

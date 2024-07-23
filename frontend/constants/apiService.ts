@@ -31,3 +31,12 @@ export const login = async (username: string, password: string): Promise<AuthRes
     throw error.response.data;
   }
 };
+
+export const createAdsPost = async (adsPost:any) => {
+  try {
+    const response = await axios.post(`${API_URL}ads/create`, adsPost);
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.error || 'Failed to create ads post');
+  }
+};

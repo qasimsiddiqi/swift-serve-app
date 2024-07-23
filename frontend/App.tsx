@@ -9,19 +9,22 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AllScreens from './navigation/Stack Navigation/AllScreens';
 import UserDrawer from './navigation/Drawer/UserDrawer';
 import DrawerScreens from './navigation/Drawer/DrawerScreens';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export default function App() {
   return (
+    <GestureHandlerRootView>
     <SafeAreaProvider>
       <View style={GlobalStyles.container}>
         <PaperProvider>
           <NavigationContainer>
-              <DrawerScreens/>
+              <AllScreens/>
           </NavigationContainer>
           <StatusBar style="auto" />
         </PaperProvider>
       </View>
     </SafeAreaProvider>
+    </GestureHandlerRootView>
   )
 }
 

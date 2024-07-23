@@ -1,7 +1,7 @@
 import { Platform, SafeAreaView, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
 import React, { Component } from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { Avatar, IconButton, ToggleButton, Text, Button, Portal, Modal, TextInput, Menu, MD3Colors } from 'react-native-paper';
+import { Avatar, IconButton, ToggleButton, Text, Button, Portal, Modal, TextInput, Menu, MD3Colors, Card } from 'react-native-paper';
 import { Calendar } from 'react-native-calendars';
 import CarouselCard from '../components/CarouselCard';
 import { SelectList } from 'react-native-dropdown-select-list';
@@ -9,6 +9,8 @@ import FontAwesome, { SolidIcons, RegularIcons, BrandIcons } from 'react-native-
 import Icon from 'react-native-fontawesome';
 import { MaterialIcons } from '@expo/vector-icons';
 import StarRating from '../components/StarRating';
+import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
+
 
 const AdScreen = ({ navigation }: any) => {
 
@@ -107,6 +109,30 @@ const AdScreen = ({ navigation }: any) => {
   const [visible, setVisible] = React.useState(false);
   const [selected, setSelected] = React.useState("");
   const [starRating, setStarRating] = React.useState(0);
+  const [date, setDate] = React.useState(new Date());
+  const [mode, setMode] = React.useState<'date' | 'time'>('date');
+  const [show, setShow] = React.useState(false);
+
+  const onChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
+    const currentDate = selectedDate || date;
+    setShow(Platform.OS === 'ios');
+    if (selectedDate && selectedDate > new Date()) {
+      setDate(currentDate);
+    }
+  };
+
+  const showMode = (currentMode: 'date' | 'time') => {
+    setShow(true);
+    setMode(currentMode);
+  };
+
+  const showDatepicker = () => {
+    showMode('date');
+  };
+
+  const showTimepicker = () => {
+    showMode('time');
+  };
 
   const handleDayPress = (day: { dateString: React.SetStateAction<string>; }) => {
     setSelectedDate(day.dateString);
@@ -157,61 +183,31 @@ const AdScreen = ({ navigation }: any) => {
               visible={bookingModalvisible}
               onDismiss={hideBookingModal}>
               <View style={styles.RatingModal}>
-                  <Text style={{ textAlign: 'center', fontSize: 18, fontWeight: 'bold' }}>Book a slot now</Text>
+                <Text style={{ textAlign: 'center', fontSize: 18, fontWeight: 'bold' }}>Book a slot now</Text>
                 <ScrollView>
                   <Text style={{ marginTop: 10, fontSize: 16 }}>Requested Service: </Text>
                   <TextInput style={{ marginTop: 10, height: 45 }}></TextInput>
                   <Text style={{ marginTop: 10, fontSize: 16 }}>Date: </Text>
-                  <View style={{ width: 100, borderColor: 'black', borderWidth: 1, marginTop: 5, marginLeft: 130 }}>
-                    <Text style={{ textAlign: 'center', fontSize: 16 }}>{selectedDate}</Text>
+                  <View>
+                    <Button onPress={showDatepicker}>Pick a Date</Button>
                   </View>
-                  <Button onPress={toggleCalendarVisibility} style={{ alignItems: 'center', position: 'absolute', marginTop: 132, marginLeft: 30 }}>
-                    <Text style={{ textDecorationLine: 'underline' }}>Select Date</Text>
-                  </Button>
-                  {calendarVisible && (
-                    <Calendar
-                      onDayPress={handleDayPress}
-                      markedDates={{
-                        [selectedDate]: { selected: true, marked: true, selectedColor: 'blue' },
-                      }} />
-                  )}
                   <Text style={{ marginTop: 10, fontSize: 16 }}>Time: </Text>
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                    <SelectList
-                      // onSelect={() => alert(selected)}
-                      setSelected={setSelected}
-                      data={hours}
-                      arrowicon={<IconButton icon={'chevron-down'} size={20} style={{ alignSelf: 'center' }} />}
-                      searchicon={<IconButton icon={'chevron-down'} size={10} style={{}} />}
-                      search={false}
-                      boxStyles={{ borderRadius: 0, width: 100, marginTop: 10, height: 50 }} //override default styles
-                      inputStyles={{ fontSize: 16, textAlign: 'center' }}
-                      defaultOption={{ key: '1', value: 'Hour' }}   //default selected option
-                    />
-                    <SelectList
-                      // onSelect={() => alert(selected)}
-                      setSelected={setSelected}
-                      data={minutes}
-                      arrowicon={<IconButton icon={'chevron-down'} size={20} style={{ alignSelf: 'center', marginLeft: -10 }} />}
-                      searchicon={<IconButton icon={'chevron-down'} size={10} />}
-                      search={false}
-                      boxStyles={{ borderRadius: 0, width: 100, marginTop: 10, height: 50 }} //override default styles
-                      inputStyles={{ fontSize: 16, textAlign: 'center' }}
-                      defaultOption={{ key: '1', value: 'Minutes' }}   //default selected option
-                    />
-                    <SelectList
-                      // onSelect={() => alert(selected)}
-                      setSelected={setSelected}
-                      data={timeOfDay}
-                      arrowicon={<IconButton icon={'chevron-down'} size={20} style={{ alignSelf: 'center', marginLeft: 20 }} />}
-                      searchicon={<IconButton icon={'chevron-down'} size={10} style={{}} />}
-                      search={false}
-                      boxStyles={{ borderRadius: 0, width: 100, marginTop: 10, height: 50 }} //override default styles
-                      inputStyles={{ fontSize: 16, textAlign: 'center' }}
-                      defaultOption={{ key: '1', value: 'Am' }}   //default selected option
-                    />
+                  <View>
+                    <Button onPress={showTimepicker}>Pick a Time</Button>
+                    <Text style={{ marginTop: 10, fontSize: 16 }}>Selected Date & Time: </Text><Text style={{ marginTop: 10, fontSize: 16, textAlign: 'center' }}>{date.toLocaleString()}</Text>
+                    {show && (
+                      <DateTimePicker
+                        testID="dateTimePicker"
+                        value={date}
+                        mode={mode}
+                        is24Hour={false}
+                        display="default"
+                        onChange={onChange}
+                        minimumDate={new Date()}
+                      />
+                    )}
                   </View>
-                  <Button mode='contained' style={{ backgroundColor: 'darkseagreen', paddingTop: 5, marginRight: 90, marginLeft: 90, marginTop: 40 }}><Text>Book Now</Text></Button>
+                  <Button onPress={hideBookingModal} mode='contained' style={{ backgroundColor: 'darkseagreen', paddingTop: 5, marginRight: 90, marginLeft: 90, marginTop: 40 }}><Text>Book Now</Text></Button>
                 </ScrollView>
               </View>
             </Modal>
@@ -222,61 +218,61 @@ const AdScreen = ({ navigation }: any) => {
                 <SafeAreaView style={{ flex: 1 }}>
                   <View style={{ alignItems: 'center' }}><Text style={{ fontSize: 18, fontWeight: 'bold' }}>How was this service?</Text></View>
                   <ScrollView>
-                  <View style={styles.ratingContainer}>
-                    <Text style={styles.heading}>Tap to rate</Text>
-                    <View style={styles.stars}>
-                      <TouchableOpacity onPress={() => setStarRating(1)}>
+                    <View style={styles.ratingContainer}>
+                      <Text style={styles.heading}>Tap to rate</Text>
+                      <View style={styles.stars}>
+                        <TouchableOpacity onPress={() => setStarRating(1)}>
+                          <MaterialIcons
+                            name={starRating >= 1 ? 'star' : 'star-border'}
+                            size={32}
+                            style={starRating >= 1 ? styles.starSelected : styles.starUnselected}
+                          />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => setStarRating(2)}>
+                          <MaterialIcons
+                            name={starRating >= 2 ? 'star' : 'star-border'}
+                            size={32}
+                            style={starRating >= 2 ? styles.starSelected : styles.starUnselected}
+                          />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => setStarRating(3)}>
+                          <MaterialIcons
+                            name={starRating >= 3 ? 'star' : 'star-border'}
+                            size={32}
+                            style={starRating >= 3 ? styles.starSelected : styles.starUnselected}
+                          />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => setStarRating(4)}>
+                          <MaterialIcons
+                            name={starRating >= 4 ? 'star' : 'star-border'}
+                            size={32}
+                            style={starRating >= 4 ? styles.starSelected : styles.starUnselected}
+                          />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => setStarRating(5)}>
+                          <MaterialIcons
+                            name={starRating >= 5 ? 'star' : 'star-border'}
+                            size={32}
+                            style={starRating >= 5 ? styles.starSelected : styles.starUnselected}
+                          />
+                        </TouchableOpacity>
+                      </View>
+                      <Text style={{ fontSize: 16, fontWeight: 'bold', marginTop: 20 }}>review/comments:</Text>
+                      <TextInput style={{ marginTop: 20, width: "90%", height: 100, padding: 0 }}></TextInput>
+                      <Text style={{ fontSize: 16, fontWeight: 'bold', marginTop: 20 }}>Add Media:</Text>
+                      <View style={{ flexDirection: 'row', marginTop: 20 }}>
                         <MaterialIcons
-                          name={starRating >= 1 ? 'star' : 'star-border'}
-                          size={32}
-                          style={starRating >= 1 ? styles.starSelected : styles.starUnselected}
+                          name='camera-alt'
+                          size={30}
+                          style={{ paddingRight: 30 }}
                         />
-                      </TouchableOpacity>
-                      <TouchableOpacity onPress={() => setStarRating(2)}>
                         <MaterialIcons
-                          name={starRating >= 2 ? 'star' : 'star-border'}
-                          size={32}
-                          style={starRating >= 2 ? styles.starSelected : styles.starUnselected}
+                          name='file-upload'
+                          size={30}
                         />
-                      </TouchableOpacity>
-                      <TouchableOpacity onPress={() => setStarRating(3)}>
-                        <MaterialIcons
-                          name={starRating >= 3 ? 'star' : 'star-border'}
-                          size={32}
-                          style={starRating >= 3 ? styles.starSelected : styles.starUnselected}
-                        />
-                      </TouchableOpacity>
-                      <TouchableOpacity onPress={() => setStarRating(4)}>
-                        <MaterialIcons
-                          name={starRating >= 4 ? 'star' : 'star-border'}
-                          size={32}
-                          style={starRating >= 4 ? styles.starSelected : styles.starUnselected}
-                        />
-                      </TouchableOpacity>
-                      <TouchableOpacity onPress={() => setStarRating(5)}>
-                        <MaterialIcons
-                          name={starRating >= 5 ? 'star' : 'star-border'}
-                          size={32}
-                          style={starRating >= 5 ? styles.starSelected : styles.starUnselected}
-                        />
-                      </TouchableOpacity>
+                      </View>
                     </View>
-                    <Text style={{ fontSize: 16, fontWeight: 'bold', marginTop: 20 }}>review/comments:</Text>
-                    <TextInput style={{ marginTop: 20, width: "90%", height: 100, padding:0 }}></TextInput>
-                    <Text style={{ fontSize: 16, fontWeight: 'bold', marginTop: 20 }}>Add Media:</Text>
-                    <View style={{ flexDirection: 'row', marginTop: 20 }}>
-                      <MaterialIcons
-                        name='camera-alt'
-                        size={30}
-                        style={{ paddingRight: 30 }}
-                      />
-                      <MaterialIcons
-                        name='file-upload'
-                        size={30}
-                      />
-                    </View>
-                  </View>
-                  <Button mode='contained' style={{ backgroundColor: 'darkseagreen', padding: 5, marginRight: 90, marginLeft: 90 }}><Text>Post</Text></Button>
+                    <Button mode='contained' style={{ backgroundColor: 'darkseagreen', padding: 5, marginRight: 90, marginLeft: 90 }}><Text>Post</Text></Button>
                   </ScrollView>
                 </SafeAreaView>
               </View>
@@ -309,14 +305,22 @@ const AdScreen = ({ navigation }: any) => {
           <IconButton icon='google-maps' style={{}} /><Text style={{ marginLeft: 30 }}>Store Location will appear here</Text>
           <Text variant='titleMedium' style={{ paddingTop: 20, paddingLeft: 5, fontWeight: 'bold' }}>Description</Text>
           <Text variant="bodyMedium" style={{ paddingTop: 5, paddingLeft: 5 }}>Description of Vendor and Service will appear here</Text>
-          <Text variant='titleMedium' style={{ paddingTop: 20, paddingLeft: 5, fontWeight: 'bold' }}>Service Catalog</Text>
-          <Text variant="bodyMedium" style={{ paddingTop: 5, paddingLeft: 5 }}>Complete Service Catalog of the Vendor will appear here</Text>
-          <View style={{ borderColor: 'black', borderRadius: 5, paddingBottom: 20, borderWidth: 1, margin: 5, justifyContent: 'center' }}>
-            <Text variant='titleMedium' style={{ paddingTop: 20, paddingLeft: 5, fontWeight: 'bold' }}>Reviews and Ratings</Text>
+          <View style={{ borderColor: 'black', height: 200, borderRadius: 5, borderWidth: 1, margin: 5 }}>
+            <ScrollView>
+            <Text variant='titleMedium' style={{ paddingTop: 0, paddingLeft: 5, fontWeight: 'bold' }}>Reviews and Ratings</Text>
             <Text variant="bodyMedium" style={{ paddingTop: 5, paddingLeft: 5 }}>Reviews and ratings of the Vendor will appear here</Text>
+            <Card style={{backgroundColor:'darkgrey', marginTop: 5, marginLeft: 5, marginRight: 5}}>
+              <Card.Title titleVariant='titleMedium' title='Qasim' style={{ top: 0, backgroundColor: 'grey' }} />
+              <Card.Content style={{ marginBottom: 5 }}>
+                <Text variant="bodyMedium">
+                  I recently visited Clip & Style Barbershop and had an outstanding experience. From the moment I walked in, I was greeted with a warm welcome and a friendly smile. The shop's atmosphere was modern yet cozy, with comfortable seating and a clean, organized setup.
+                </Text>
+              </Card.Content>
+            </Card>
             <Button onPress={showRatingModal} mode='contained' style={{ backgroundColor: 'darkseagreen', paddingTop: 5, marginRight: 70, marginLeft: 70, marginTop: 10 }}><Text>Add a Review</Text></Button>
+            </ScrollView>
           </View>
-          <Button onPress={showBookingModal} mode='contained' style={{ backgroundColor: 'darkseagreen', paddingTop: 5, marginRight: 100, marginLeft: 100, marginTop: 10 }}><Text>Book Now</Text></Button>
+          <Button onPress={showBookingModal} mode='contained' style={{ backgroundColor: 'darkseagreen', paddingTop: 5, marginRight: 100, marginLeft: 100, marginTop: 10, marginBottom: 10 }}><Text>Book Now</Text></Button>
         </View>
       </ScrollView>
     </SafeAreaProvider>
