@@ -23,15 +23,16 @@ exports.getAllReviews = async (req, res) => {
 
 exports.getReviewsByAdsPostId = async (req, res) => {
     try {
-        const { adsPostId } = req.params; // Extract adsPostId from request parameters
+        console.log("REQQQ--------------------", req.params)
+        const { id } = req.params; // Extract adsPostId from request parameters
 
         // Validate that adsPostId is a valid ObjectId
-        if (!mongoose.Types.ObjectId.isValid(adsPostId)) {
+        if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).json({ error: 'Invalid adsPost ID' });
         }
 
         // Fetch reviews for the specific ads post
-        const reviews = await Review.find({ adsPost: adsPostId })
+        const reviews = await Review.find({ adsPost: id })
             .populate('user', 'fullName email') // Optionally populate user details
             .exec();
 

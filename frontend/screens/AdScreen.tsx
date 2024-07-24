@@ -1,5 +1,5 @@
 import { Alert, Platform, SafeAreaView, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
-import React, { Component } from 'react'
+import React, { Component, useEffect, useState } from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Avatar, IconButton, ToggleButton, Text, Button, Portal, Modal, TextInput, Menu, MD3Colors, Card } from 'react-native-paper';
 import { Calendar } from 'react-native-calendars';
@@ -11,10 +11,11 @@ import { MaterialIcons } from '@expo/vector-icons';
 import StarRating from '../components/StarRating';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createBooking, createReview } from '../constants/apiService';
+import { createBooking, createReview, getAdsPostWithReviews } from '../constants/apiService';
 
 const AdScreen = ({ route, navigation }: any) => {
   const { adDetails } = route.params;
+  const [adsPost, setAdsPost] = useState<any>([]);
   const hours = [
     { key: '1', value: 'Hour' },
     { key: '2', value: '01' },
@@ -114,6 +115,12 @@ const AdScreen = ({ route, navigation }: any) => {
   const [mode, setMode] = React.useState<'date' | 'time'>('date');
   const [show, setShow] = React.useState(false);
 
+  useEffect(() => {
+    (async () => {
+      getAdsReviews();
+    })()
+  }, [])
+
   const onChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
     const currentDate = selectedDate || date;
     setShow(Platform.OS === 'ios');
@@ -153,7 +160,7 @@ const AdScreen = ({ route, navigation }: any) => {
     setstatus(status === false ? true : false);
   }
   const navigateToRating = () => {
-    navigation.navigate('RatingAndReview')
+    navigation.navigate('Rating And Review')
   }
 
   const showBookingModal = () => setBookingModalVisible(true);
@@ -210,10 +217,16 @@ const AdScreen = ({ route, navigation }: any) => {
     }
   };
 
-  const navigateToReviews = () => {
-    navigation.navigate('RatingAndReview');
+  const getAdsReviews = async () => {
+    try {
+      const response = await getAdsPostWithReviews(adDetails._id);
+      console.log("Ads response", response)
+      setAdsPost(response)
+    } catch (error) {
+      console.log("Error while getting ads", error)
+    }
   }
-
+  // console.log("first")
   return (
     <SafeAreaProvider>
       <ScrollView>
@@ -322,6 +335,12 @@ const AdScreen = ({ route, navigation }: any) => {
           <View>
             <StarRating rating={3}></StarRating>
           </View>
+          <Avatar.Icon
+            icon="check-decagram"
+            size={35}
+            style={{ position: 'absolute', top: 265, right: 220, backgroundColor: 'transparent' }}
+            color='blue'
+          />
           <IconButton
             icon='share-variant'
             size={20}
@@ -334,17 +353,26 @@ const AdScreen = ({ route, navigation }: any) => {
             size={25}
             style={{ position: 'absolute', top: 200, right: 2 }}
           />
-          <Text variant='titleLarge' style={{ marginLeft: 5, paddingTop: 5, paddingLeft: 5, fontWeight: 'bold' }}>{adDetails.serviceName}</Text>
+          <Text variant='titleLarge' style={{ paddingTop: 5, paddingLeft: 5, fontWeight: 'bold' }}>{adDetails.serviceName}</Text>
           <Text variant='titleMedium' style={{ paddingTop: 5, paddingLeft: 5, fontWeight: 'bold' }}>{adDetails.vendorName}</Text>
           <IconButton icon='google-maps' /><Text style={{ marginLeft: 30 }}>Longitude: {adDetails.location.longitude} Latitude: {adDetails.location.latitude}</Text>
-          <Text variant='titleMedium' style={{ paddingTop: 20, paddingLeft: 5, fontWeight: 'bold' }}>Description: </Text>
-          <Text variant='titleMedium' style={{ paddingTop: 20, paddingLeft: 5 }}>{adDetails.serviceDetails}</Text>
+          <Text variant='titleMedium' style={{ paddingTop: 20, paddingLeft: 5, fontWeight: 'bold' }}>{adDetails.serviceDetails}</Text>
           <Text variant="bodyMedium" style={{ paddingTop: 5, paddingLeft: 5 }}>{adDetails.description}</Text>
-          {/* <Text variant='titleMedium' style={{ paddingTop: 20, paddingLeft: 5, fontWeight: 'bold' }}>Service Catalog</Text> */}
+          <Text variant='titleMedium' style={{ paddingTop: 20, paddingLeft: 5, fontWeight: 'bold' }}>Service Catalog</Text>
+          <Text variant="bodyMedium" style={{ paddingTop: 5, paddingLeft: 5 }}>{adDetails.serviceCatalog}</Text>
+          <Text variant="bodyMedium" style={{ paddingTop: 5, paddingLeft: 5 }}>Complete Service Catalog of the Vendor will appear here</Text>
           <View style={{ borderColor: 'black', borderRadius: 5, paddingBottom: 20, borderWidth: 1, margin: 5, justifyContent: 'center' }}>
             <Text variant='titleMedium' style={{ paddingTop: 20, paddingLeft: 5, fontWeight: 'bold' }}>Reviews and Ratings</Text>
-            {/* <Text variant="bodyMedium" style={{ paddingTop: 5, paddingLeft: 5 }}>Reviews and ratings of the Vendor will appear here</Text> */}
-            <Button onPress={navigateToRating} mode='contained' style={{ backgroundColor: 'darkseagreen', paddingTop: 5, marginRight: 70, marginLeft: 70, marginTop: 10 }}><Text>See Vendor Review</Text></Button>
+            {adsPost?.map((adsPost: any) => (
+              <Card style={{ backgroundColor: 'darkgrey', marginTop: 5, marginLeft: 5, marginRight: 5 }}>
+                <Card.Title titleVariant='titleMedium' title={adsPost?.user.fullName} style={{ top: 0, backgroundColor: 'grey' }} />
+                <Card.Content style={{ marginBottom: 5 }}>
+                  <Text variant="bodyMedium">
+                    {adsPost?.comments}
+                  </Text>
+                </Card.Content>
+              </Card>
+            ))}
             <Button onPress={showRatingModal} mode='contained' style={{ backgroundColor: 'darkseagreen', paddingTop: 5, marginRight: 70, marginLeft: 70, marginTop: 10 }}><Text>Add a Review</Text></Button>
             {/* </ScrollView> */}
           </View>
