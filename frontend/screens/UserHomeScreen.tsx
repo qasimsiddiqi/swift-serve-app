@@ -145,13 +145,13 @@ const UserHomeScreen = ({ navigation }: any) => {
       <View style={styles.container}>
         <UserDrawer navigation={navigation} />
         <Searchbar
-            placeholder="Search"
-            onChangeText={setSearchQuery}
-            value={searchQuery}
-            style={styles.searchBar}
-            inputStyle={styles.searchInput}
-          />
-          <IconButton icon="filter-outline" onPress={showSearchModal} style={styles.filterButton} />
+          placeholder="Search"
+          onChangeText={setSearchQuery}
+          value={searchQuery}
+          style={styles.searchBar}
+          inputStyle={styles.searchInput}
+        />
+        <IconButton icon="filter-outline" onPress={showSearchModal} style={styles.filterButton} />
         <View style={styles.contentContainer}>
           <ScrollView>
             <View>
@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
     width: '50%',
     borderRadius: 10,
     height: 40,
-    paddingBottom:0,
+    paddingBottom: 0,
   },
   searchInput: {
     fontSize: 16,
