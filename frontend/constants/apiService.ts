@@ -54,7 +54,7 @@ export const getAdsPost = async () => {
     // console.log("Ads post created successfully:", response);
     return response.data;
   } catch (error: any) {
-    throw new Error(error.response?.data?.error || 'Failed to create ads post');
+    throw new Error(error.response?.data?.error || 'Failed to get ads post');
   }
 };
 
@@ -65,7 +65,7 @@ export const createBooking = async (bookingDetails: any) => {
     // console.log("Ads post created successfully:", response);
     return response.data;
   } catch (error: any) {
-    throw new Error(error.response?.data?.error || 'Failed to create ads post');
+    throw new Error(error.response?.data?.error || 'Failed to create booking');
   }
 };
 
@@ -77,5 +77,17 @@ export const createReview = async (reviewDetails: any) => {
     return response.data;
   } catch (error: any) {
     throw new Error(error.response?.data?.error || 'Failed to create review');
+  }
+};
+
+export const getAdsPostWithReviews = async (id: any) => {
+  try {
+    // console.log("inside post function", adsPost)
+    console.log("idDD", id)
+    const response = await axios.get(`${API_URL}reviews/${id}`);
+    // console.log("Ads post created successfully:", response);
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.error || 'Failed to get ads reviews');
   }
 };

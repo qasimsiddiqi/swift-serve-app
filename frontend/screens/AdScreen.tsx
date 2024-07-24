@@ -1,5 +1,5 @@
 import { Alert, Platform, SafeAreaView, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
-import React, { Component } from 'react'
+import React, { Component, useEffect, useState } from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Avatar, IconButton, ToggleButton, Text, Button, Portal, Modal, TextInput, Menu, MD3Colors, Card } from 'react-native-paper';
 import { Calendar } from 'react-native-calendars';
@@ -11,10 +11,11 @@ import { MaterialIcons } from '@expo/vector-icons';
 import StarRating from '../components/StarRating';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createBooking, createReview } from '../constants/apiService';
+import { createBooking, createReview, getAdsPostWithReviews } from '../constants/apiService';
 
 const AdScreen = ({ route, navigation }: any) => {
   const { adDetails } = route.params;
+  const [adsPost, setAdsPost] = useState<any>([]);
   const hours = [
     { key: '1', value: 'Hour' },
     { key: '2', value: '01' },
@@ -114,6 +115,12 @@ const AdScreen = ({ route, navigation }: any) => {
   const [mode, setMode] = React.useState<'date' | 'time'>('date');
   const [show, setShow] = React.useState(false);
 
+  useEffect(() => {
+    (async () => {
+      getAdsReviews();
+    })()
+  }, [])
+
   const onChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
     const currentDate = selectedDate || date;
     setShow(Platform.OS === 'ios');
@@ -210,7 +217,16 @@ const AdScreen = ({ route, navigation }: any) => {
     }
   };
 
-
+  const getAdsReviews = async () => {
+    try {
+      const response = await getAdsPostWithReviews(adDetails._id);
+      console.log("Ads response", response)
+      setAdsPost(response)
+    } catch (error) {
+      console.log("Error while getting ads", error)
+    }
+  }
+  // console.log("first")
   return (
     <SafeAreaProvider>
       <ScrollView>
@@ -347,15 +363,16 @@ const AdScreen = ({ route, navigation }: any) => {
           <Text variant="bodyMedium" style={{ paddingTop: 5, paddingLeft: 5 }}>Complete Service Catalog of the Vendor will appear here</Text>
           <View style={{ borderColor: 'black', borderRadius: 5, paddingBottom: 20, borderWidth: 1, margin: 5, justifyContent: 'center' }}>
             <Text variant='titleMedium' style={{ paddingTop: 20, paddingLeft: 5, fontWeight: 'bold' }}>Reviews and Ratings</Text>
-            <Text variant="bodyMedium" style={{ paddingTop: 5, paddingLeft: 5 }}>Reviews and ratings of the Vendor will appear here</Text>
-            <Card style={{ backgroundColor: 'darkgrey', marginTop: 5, marginLeft: 5, marginRight: 5 }}>
-              <Card.Title titleVariant='titleMedium' title='Qasim' style={{ top: 0, backgroundColor: 'grey' }} />
-              <Card.Content style={{ marginBottom: 5 }}>
-                <Text variant="bodyMedium">
-                  I recently visited Clip & Style Barbershop and had an outstanding experience. From the moment I walked in, I was greeted with a warm welcome and a friendly smile. The shop's atmosphere was modern yet cozy, with comfortable seating and a clean, organized setup.
-                </Text>
-              </Card.Content>
-            </Card>
+            {adsPost?.map((adsPost: any) => (
+              <Card style={{ backgroundColor: 'darkgrey', marginTop: 5, marginLeft: 5, marginRight: 5 }}>
+                <Card.Title titleVariant='titleMedium' title={adsPost?.user.fullName} style={{ top: 0, backgroundColor: 'grey' }} />
+                <Card.Content style={{ marginBottom: 5 }}>
+                  <Text variant="bodyMedium">
+                    {adsPost?.comments}
+                  </Text>
+                </Card.Content>
+              </Card>
+            ))}
             <Button onPress={showRatingModal} mode='contained' style={{ backgroundColor: 'darkseagreen', paddingTop: 5, marginRight: 70, marginLeft: 70, marginTop: 10 }}><Text>Add a Review</Text></Button>
             {/* </ScrollView> */}
           </View>
