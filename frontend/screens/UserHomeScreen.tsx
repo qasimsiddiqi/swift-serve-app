@@ -1,5 +1,5 @@
 import { FlatList, Platform, ScrollView, StyleSheet, Text, View, ViewStyle } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Appbar, Avatar, BottomNavigation, Button, Card, Checkbox, FAB, Icon, IconButton, Modal, Portal, RadioButton, Searchbar } from 'react-native-paper';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import LocationScreen from './LocationScreen';
@@ -10,35 +10,27 @@ import { SelectList } from 'react-native-dropdown-select-list';
 import TabScreens from '../navigation/Bottom Tab Navigation/TabScreens';
 import UserDrawer from '../navigation/Drawer/UserDrawer';
 import VendorDrawer from '../navigation/Drawer/VendorDrawer';
+import { getAdsPost } from '../constants/apiService';
 
 const UserHomeScreen = ({ navigation }: any) => {
-  const Venues = [
-    {
-      id: 1,
-      name: 'Pit Stop',
-      uri: 'https://img.freepik.com/premium-vector/piston-gear-logo-automotive-workshop-design-hexagon-shape-speed-shop-repair-garage_171487-401.jpg'
-    },
-    {
-      id: 2,
-      name: 'Tailor Shop',
-      uri: 'https://t4.ftcdn.net/jpg/03/69/03/07/360_F_369030788_LnS7DYA70VExiJT5QjnINHIKXQ9wUCcf.jpg'
-    },
-    {
-      id: 3,
-      name: 'Mobile Repairing',
-      uri: 'https://img.freepik.com/premium-vector/mobile-store-logo-design_23-2149750708.jpg'
-    },
-    {
-      id: 4,
-      name: 'Electrician for your house',
-      uri: 'https://camelotbanquets.com/wp-content/uploads/2020/01/0901-%C2%A9-KATANA-PHOTO.jpg'
-    },
-    {
-      id: 5,
-      name: 'Plumber for your house',
-      uri: 'https://ramyashotels.com/wp-content/uploads/2021/09/banquet-hall-trichy.jpg'
-    },
-  ];
+  const [ads, setAds] = useState([]);
+
+  useEffect(() => {
+    (async () => {
+      await getAds()
+    })()
+  }, [])
+  console.log("Adssss", ads)
+
+  const getAds = async () => {
+    try {
+      const response = await getAdsPost()
+      console.log("Ads response", response)
+      setAds(response)
+    } catch (error) {
+      console.log("Error while getting ads", error)
+    }
+  }
 
   const priceRange = [
     { key: '1', value: '0 - 1000 Rs' },
@@ -75,9 +67,10 @@ const UserHomeScreen = ({ navigation }: any) => {
   const showSearchModal = () => setSearchModalVisible(true);
   const hideSearchModal = () => setSearchModalVisible(false);
 
-  const navigateToAdScreen = () => {
-    navigation.navigate('AdScreen')
-  }
+  const navigateToAdScreen = (ad: any) => {
+    navigation.navigate('AdScreen', { adDetails: ad });
+  };
+
   const navigateToTopRatedAdsScreen = () => {
     navigation.navigate('TopRatedAdsScreen')
   }
@@ -167,75 +160,19 @@ const UserHomeScreen = ({ navigation }: any) => {
                 <FlatList
                   style={{ borderWidth: 0, borderColor: 'black', borderRadius: 10, margin: 5 }}
                   horizontal
-                  data={Venues}
-                  renderItem={({ item }) => {
-                    if (item.id < 4) {
-                      return (
-                        <Card onPress={navigateToAdScreen} style={{ margin: 10, width: 150, height: 200 }}>
-                          <Card.Cover source={{ uri: item.uri }}
-                            style={{ width: 150, height: 120 }}
-                          />
-                          <Text style={{ fontSize: 16, paddingRight: 5, paddingLeft: 5, paddingBottom: 5, paddingTop: 5 }}>{item.name}</Text>
-                        </Card>
-                      )
-                    } if (item.id === 4) {
-                      return <Button onPress={navigateToTopRatedAdsScreen} mode="outlined" style={{ alignSelf: 'center', justifyContent: 'center', borderRadius: 0, width: 100, height: 100 }}>See All</Button>
-                    }
-                    else {
-                      return null;
-                    }
-                  }}
+                  data={ads.slice(0, 3)} // Only display the first 3 ads
+                  renderItem={({ item }: any) => (
+                    <Card onPress={() => navigateToAdScreen(item)} style={{ margin: 10, width: 150, height: 200 }}>
+                      <Card.Cover source={{ uri: item.images[0] }} style={{ width: 150, height: 120 }} />
+                      <Text style={{ fontSize: 16, paddingRight: 5, paddingLeft: 5, paddingBottom: 5, paddingTop: 5 }}>{item.serviceName}</Text>
+                    </Card>
+                  )}
                 />
-              </View>
-              <View style={styles.container1}>
-                <Text style={{ fontSize: 18, marginLeft: 15, marginTop: 2, fontWeight: 'bold' }}>Near Me</Text>
-                <FlatList
-                  style={{ borderWidth: 0, borderColor: 'black', borderRadius: 10, margin: 5 }}
-                  horizontal
-                  data={Venues}
-                  renderItem={({ item }) => {
-                    if (item.id < 4) {
-                      return (
-                        <Card onPress={navigateToAdScreen} style={{ margin: 10, width: 150, height: 200 }}>
-                          <Card.Cover source={{ uri: item.uri }}
-                            style={{ width: 150, height: 120 }}
-                          />
-                          <Text style={{ fontSize: 16, paddingRight: 5, paddingLeft: 5, paddingBottom: 5, paddingTop: 5 }}>{item.name}</Text>
-                        </Card>
-                      )
-                    } if (item.id === 4) {
-                      return <Button mode="outlined" style={{ alignSelf: 'center', justifyContent: 'center', borderRadius: 0, width: 100, height: 100 }}>See All</Button>
-                    }
-                    else {
-                      return null;
-                    }
-                  }}
-                />
-              </View>
-              <View style={styles.container1}>
-                <Text style={{ fontSize: 18, marginLeft: 15, marginTop: 2, fontWeight: 'bold' }}>Top Rated Ads</Text>
-                <FlatList
-                  style={{ borderWidth: 0, borderColor: 'black', borderRadius: 10, margin: 5 }}
-                  horizontal
-                  data={Venues}
-                  renderItem={({ item }) => {
-                    if (item.id < 4) {
-                      return (
-                        <Card onPress={navigateToAdScreen} style={{ margin: 10, width: 150, height: 200 }}>
-                          <Card.Cover source={{ uri: item.uri }}
-                            style={{ width: 150, height: 120 }}
-                          />
-                          <Text style={{ fontSize: 16, paddingRight: 5, paddingLeft: 5, paddingBottom: 5, paddingTop: 5 }}>{item.name}</Text>
-                        </Card>
-                      )
-                    } if (item.id === 4) {
-                      return <Button mode="outlined" style={{ alignSelf: 'center', justifyContent: 'center', borderRadius: 0, width: 100, height: 100 }}>See All</Button>
-                    }
-                    else {
-                      return null;
-                    }
-                  }}
-                />
+                {ads.length > 2 && (
+                  <Button onPress={navigateToTopRatedAdsScreen} mode="outlined" style={{ alignSelf: 'center', justifyContent: 'center', borderRadius: 0 }}>
+                    See All
+                  </Button>
+                )}
               </View>
             </View>
           </ScrollView>

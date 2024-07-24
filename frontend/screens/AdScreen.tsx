@@ -1,4 +1,4 @@
-import { Platform, SafeAreaView, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
+import { Alert, Platform, SafeAreaView, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
 import React, { Component } from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Avatar, IconButton, ToggleButton, Text, Button, Portal, Modal, TextInput, Menu, MD3Colors, Card } from 'react-native-paper';
@@ -10,9 +10,11 @@ import Icon from 'react-native-fontawesome';
 import { MaterialIcons } from '@expo/vector-icons';
 import StarRating from '../components/StarRating';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createBooking, createReview } from '../constants/apiService';
 
-
-const AdScreen = ({ navigation }: any) => {
+const AdScreen = ({ route, navigation }: any) => {
+  const { adDetails } = route.params;
 
   const hours = [
     { key: '1', value: 'Hour' },
@@ -133,6 +135,7 @@ const AdScreen = ({ navigation }: any) => {
   const showTimepicker = () => {
     showMode('time');
   };
+  const [review, setReview] = React.useState('');
 
   const handleDayPress = (day: { dateString: React.SetStateAction<string>; }) => {
     setSelectedDate(day.dateString);
@@ -174,6 +177,41 @@ const AdScreen = ({ navigation }: any) => {
     }
   }
 
+  const handleCreateBooking = async () => {
+    try {
+      const userDetails = await AsyncStorage.getItem('userDetails');
+      if (userDetails !== null) {
+        const userResponse = JSON.parse(userDetails); // Parse the JSON string back to an object
+        const userId = userResponse?._id;
+        const bookingDetails = { user: userId, adsPost: adDetails._id, serviceName: adDetails.serviceName, date: selectedDate, time: selected };
+        const response = await createBooking(bookingDetails);
+        console.log("Res", response)
+        Alert.alert('Success', 'Booked successfully.');
+      }
+
+    } catch (error: any) {
+      Alert.alert('Error', error.message);
+    }
+  };
+
+  const handelCreateReview = async () => {
+    try {
+      const userDetails = await AsyncStorage.getItem('userDetails');
+      if (userDetails !== null) {
+        const userResponse = JSON.parse(userDetails); // Parse the JSON string back to an object
+        const userId = userResponse?._id;
+        const reviewDetails = { user: userId, adsPost: adDetails._id, rating: starRating, comments: review, image: '' };
+        const response = await createReview(reviewDetails);
+        console.log("Res", response)
+        Alert.alert('Success', 'Thanks for reviewing.');
+      }
+
+    } catch (error: any) {
+      Alert.alert('Error', error.message);
+    }
+  };
+
+
   return (
     <SafeAreaProvider>
       <ScrollView>
@@ -207,7 +245,7 @@ const AdScreen = ({ navigation }: any) => {
                       />
                     )}
                   </View>
-                  <Button onPress={hideBookingModal} mode='contained' style={{ backgroundColor: 'darkseagreen', paddingTop: 5, marginRight: 90, marginLeft: 90, marginTop: 40 }}><Text>Book Now</Text></Button>
+                  <Button onPress={handleCreateBooking} mode='contained' style={{ backgroundColor: 'darkseagreen', paddingTop: 5, marginRight: 90, marginLeft: 90, marginTop: 40 }}><Text>Book Now</Text></Button>
                 </ScrollView>
               </View>
             </Modal>
@@ -258,7 +296,7 @@ const AdScreen = ({ navigation }: any) => {
                         </TouchableOpacity>
                       </View>
                       <Text style={{ fontSize: 16, fontWeight: 'bold', marginTop: 20 }}>review/comments:</Text>
-                      <TextInput style={{ marginTop: 20, width: "90%", height: 100, padding: 0 }}></TextInput>
+                      <TextInput onChangeText={(e) => setReview(e)} style={{ marginTop: 20, width: "90%", height: 100, padding: 0 }}></TextInput>
                       <Text style={{ fontSize: 16, fontWeight: 'bold', marginTop: 20 }}>Add Media:</Text>
                       <View style={{ flexDirection: 'row', marginTop: 20 }}>
                         <MaterialIcons
@@ -272,7 +310,7 @@ const AdScreen = ({ navigation }: any) => {
                         />
                       </View>
                     </View>
-                    <Button mode='contained' style={{ backgroundColor: 'darkseagreen', padding: 5, marginRight: 90, marginLeft: 90 }}><Text>Post</Text></Button>
+                    <Button onPress={handelCreateReview} mode='contained' style={{ backgroundColor: 'darkseagreen', padding: 5, marginRight: 90, marginLeft: 90 }}><Text>Post</Text></Button>
                   </ScrollView>
                 </SafeAreaView>
               </View>
@@ -300,14 +338,16 @@ const AdScreen = ({ navigation }: any) => {
             size={25}
             style={{ position: 'absolute', top: 200, right: 2 }}
           />
-          <Text variant='titleLarge' style={{ paddingTop: 5, paddingLeft: 5, fontWeight: 'bold' }}>Pit Stop</Text>
-          <Text variant='titleMedium' style={{ paddingTop: 5, paddingLeft: 5, fontWeight: 'bold' }}>Qasim Siddiqi</Text>
-          <IconButton icon='google-maps' style={{}} /><Text style={{ marginLeft: 30 }}>Store Location will appear here</Text>
-          <Text variant='titleMedium' style={{ paddingTop: 20, paddingLeft: 5, fontWeight: 'bold' }}>Description</Text>
-          <Text variant="bodyMedium" style={{ paddingTop: 5, paddingLeft: 5 }}>Description of Vendor and Service will appear here</Text>
-          <View style={{ borderColor: 'black', height: 200, borderRadius: 5, borderWidth: 1, margin: 5 }}>
-            <ScrollView>
-            <Text variant='titleMedium' style={{ paddingTop: 0, paddingLeft: 5, fontWeight: 'bold' }}>Reviews and Ratings</Text>
+          <Text variant='titleLarge' style={{ paddingTop: 5, paddingLeft: 5, fontWeight: 'bold' }}>{adDetails.serviceName}</Text>
+          <Text variant='titleMedium' style={{ paddingTop: 5, paddingLeft: 5, fontWeight: 'bold' }}>{adDetails.vendorName}</Text>
+          <IconButton icon='google-maps' style={{}} /><Text style={{ marginLeft: 30 }}>{adDetails.location}</Text>
+          <Text variant='titleMedium' style={{ paddingTop: 20, paddingLeft: 5, fontWeight: 'bold' }}>{adDetails.serviceDetails}</Text>
+          <Text variant="bodyMedium" style={{ paddingTop: 5, paddingLeft: 5 }}>{adDetails.description}</Text>
+          <Text variant='titleMedium' style={{ paddingTop: 20, paddingLeft: 5, fontWeight: 'bold' }}>Service Catalog</Text>
+          <Text variant="bodyMedium" style={{ paddingTop: 5, paddingLeft: 5 }}>{adDetails.serviceCatalog}</Text>
+          <Text variant="bodyMedium" style={{ paddingTop: 5, paddingLeft: 5 }}>Complete Service Catalog of the Vendor will appear here</Text>
+          <View style={{ borderColor: 'black', borderRadius: 5, paddingBottom: 20, borderWidth: 1, margin: 5, justifyContent: 'center' }}>
+            <Text variant='titleMedium' style={{ paddingTop: 20, paddingLeft: 5, fontWeight: 'bold' }}>Reviews and Ratings</Text>
             <Text variant="bodyMedium" style={{ paddingTop: 5, paddingLeft: 5 }}>Reviews and ratings of the Vendor will appear here</Text>
             <Card style={{backgroundColor:'darkgrey', marginTop: 5, marginLeft: 5, marginRight: 5}}>
               <Card.Title titleVariant='titleMedium' title='Qasim' style={{ top: 0, backgroundColor: 'grey' }} />
@@ -318,7 +358,7 @@ const AdScreen = ({ navigation }: any) => {
               </Card.Content>
             </Card>
             <Button onPress={showRatingModal} mode='contained' style={{ backgroundColor: 'darkseagreen', paddingTop: 5, marginRight: 70, marginLeft: 70, marginTop: 10 }}><Text>Add a Review</Text></Button>
-            </ScrollView>
+            {/* </ScrollView> */}
           </View>
           <Button onPress={showBookingModal} mode='contained' style={{ backgroundColor: 'darkseagreen', paddingTop: 5, marginRight: 100, marginLeft: 100, marginTop: 10, marginBottom: 10 }}><Text>Book Now</Text></Button>
         </View>

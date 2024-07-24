@@ -1,7 +1,7 @@
 import { Dimensions, StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native'
 import React from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { Appbar, Drawer, IconButton } from 'react-native-paper'
+import { Appbar, Divider, Drawer, IconButton } from 'react-native-paper'
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { ScrollView } from 'react-native-gesture-handler';
 
@@ -76,11 +76,12 @@ const VendorDrawer = ({ navigation }: any) => {
             </Appbar.Header>
             <Animated.View style={[styles.drawer, drawerAnimatedStyle]}>
                 <ScrollView>
-                    <Text>Welcome User</Text>
+                    <Text style={{marginTop: 5, fontSize: 20, fontWeight: 'bold'}}>Welcome {'\n'} To</Text>
                     <Image
-                        source={require('../../assets/SwiftServe Logo.png')}
+                        source={require('../../assets/SwiftServe_Logo-removebg.png')}
                         style={styles.logo}
                     />
+                    <Divider style={styles.divider}></Divider>
                     <Drawer.Item
                         style={styles.drawerItem}
                         icon="home"
@@ -123,10 +124,15 @@ export default VendorDrawer
 
 const styles = StyleSheet.create({
     logo: {
-        width: '50%',
+        width: '100%',
         height: 100,
         resizeMode: 'contain',
         marginBottom: 20,
+    },
+    divider: {
+        backgroundColor: 'black',
+        height: 2,
+        marginVertical: 10,
     },
     drawer: {
         position: 'absolute',
@@ -134,7 +140,7 @@ const styles = StyleSheet.create({
         left: 0,
         width: width * 0.75,
         height: height,
-        backgroundColor: '#ffffff',
+        backgroundColor: 'darkseagreen',
         zIndex: 10,
         padding: 10,
         shadowColor: '#000',
@@ -152,7 +158,7 @@ const styles = StyleSheet.create({
         marginTop: 20,
         marginBottom: 20,
         padding: 10,
-        backgroundColor: '#66cdaa',
+        backgroundColor: 'limegreen',
         borderRadius: 5,
     },
     closeDrawerButtonText: {

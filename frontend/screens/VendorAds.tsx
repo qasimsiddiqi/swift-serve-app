@@ -10,6 +10,7 @@ import { createAdsPost } from '../constants/apiService';
 import MapView, { Marker } from 'react-native-maps';
 import VendorDrawer from '../navigation/Drawer/VendorDrawer';
 import MapViewComponent from './MapViewComponent';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width } = Dimensions.get('window');
 const { height } = Dimensions.get('window');
@@ -29,6 +30,8 @@ const VendorAds = ({ navigation }: any) => {
     const [location, setLocation] = React.useState<Location.LocationObjectCoords | null>(null);
     const [errorMsg, setErrorMsg] = React.useState('');
     const [address, setAddress] = React.useState<string | null>(null);
+    const [serviceType, setServiceType] = React.useState('homeBase');
+    const [ads, setAds] = React.useState(false);
 
     const showAdModal = () => setAdModalVisible(true);
     const hideAdModal = () => setAdModalVisible(false);
@@ -145,12 +148,17 @@ const VendorAds = ({ navigation }: any) => {
     }
 
     const handleCreatePost = async () => {
-        const adsPost = { serviceName, serviceDetails, radioChecked, images, location, user };
-
         try {
-            const response = await createAdsPost(adsPost);
-            console.log("Res", response)
-            Alert.alert('Success', 'Ads post created successfully.');
+            const userDetails = await AsyncStorage.getItem('userDetails');
+            if (userDetails !== null) {
+                const userResponse = JSON.parse(userDetails); // Parse the JSON string back to an object
+                const user = userResponse?._id;
+                const adsPost = { serviceName, serviceDetails, serviceType, images, location, user };
+                const response = await createAdsPost(adsPost);
+                setAds(true); 
+                Alert.alert('Success', 'Ads post created successfully.');
+            }
+
         } catch (error: any) {
             Alert.alert('Error', error.message);
         }
@@ -190,30 +198,30 @@ const VendorAds = ({ navigation }: any) => {
                                 <Text style={{ marginTop: 20, fontSize: 16 }}>Service Type: </Text>
                                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                     <RadioButton
-                                        value="first"
-                                        status={radioChecked === 'first' ? 'checked' : 'unchecked'}
-                                        onPress={() => setRadioChecked('first')}
+                                        value="homeBase"
+                                        status={serviceType === 'homeBase' ? 'checked' : 'unchecked'}
+                                        onPress={() => setServiceType('homeBase')}
                                         color='green'
                                     />
-                                    <Text onPress={() => setRadioChecked('first')} style={{ marginLeft: 8, fontSize: 16 }}>Home Base</Text>
+                                    <Text onPress={() => setServiceType('homeBase')} style={{ marginLeft: 8, fontSize: 16 }}>Home Base</Text>
                                 </View>
                                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                     <RadioButton
-                                        value="second"
-                                        status={radioChecked === 'second' ? 'checked' : 'unchecked'}
-                                        onPress={() => setRadioChecked('second')}
+                                        value="shopBase"
+                                        status={serviceType === 'shopBase' ? 'checked' : 'unchecked'}
+                                        onPress={() => setServiceType('shopBase')}
                                         color='green'
                                     />
-                                    <Text onPress={() => setRadioChecked('second')} style={{ marginLeft: 8, fontSize: 16 }}>Shop Base</Text>
+                                    <Text onPress={() => setServiceType('shopBase')} style={{ marginLeft: 8, fontSize: 16 }}>Shop Base</Text>
                                 </View>
                                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                     <RadioButton
-                                        value="third"
-                                        status={radioChecked === 'third' ? 'checked' : 'unchecked'}
-                                        onPress={() => setRadioChecked('third')}
+                                        value="both"
+                                        status={serviceType === 'both' ? 'checked' : 'unchecked'}
+                                        onPress={() => setServiceType('both')}
                                         color='green'
                                     />
-                                    <Text onPress={() => setRadioChecked('third')} style={{ marginLeft: 8, fontSize: 16 }}>Both</Text>
+                                    <Text onPress={() => setServiceType('both')} style={{ marginLeft: 8, fontSize: 16 }}>Both</Text>
                                 </View>
                                 <Text style={{ marginTop: 20, fontSize: 16 }}>Location: </Text>
                                 {address && <Text style={{ marginTop: 10, fontSize: 16 }}>{address}</Text>}
@@ -225,7 +233,7 @@ const VendorAds = ({ navigation }: any) => {
                                         <Image key={index} source={{ uri: img }} style={styles.image} />
                                     ))}
                                 </View>
-                                <Button mode='contained' style={{backgroundColor:'darkseagreen'}} onPress={hideAdModal}>Create Ad</Button>
+                                <Button mode='contained' style={{backgroundColor:'darkseagreen'}} onPress={handleCreatePost}>Create Ad</Button>
                             </ScrollView>
                         </View>
                     </Modal>
@@ -238,15 +246,19 @@ const VendorAds = ({ navigation }: any) => {
                     <TouchableOpacity style={styles.newAdButton} onPress={showAdModal}>
                         <Text style={styles.newAdButtonText}>Create a new Ad</Text>
                     </TouchableOpacity>
-                    <Card style={{width: '90%', marginTop: 10}}>
-                        <Card.Cover />
-                        <Card.Title title="Ad Name"/>
-                        <Card.Content>
-                            <Text>Price: </Text>
-                            <Text>Description: </Text>
-                            <Button mode='contained' style={{marginTop: 10, backgroundColor:'red', width: '50%'}}>Delete Ad</Button>
-                        </Card.Content>
-                    </Card>
+                    {!ads ? (
+                        <Text style={{ marginTop: 20, fontSize: 16 }}>No Service Ads Found</Text>
+                    ) : (
+                        <Card style={{width: '90%', marginTop: 10}}>
+                            <Card.Cover />
+                            <Card.Title title="Ad Name"/>
+                            <Card.Content>
+                                <Text>Price: </Text>
+                                <Text>Description: </Text>
+                                <Button mode='contained' style={{marginTop: 10, backgroundColor:'red', width: '50%'}}>Delete Ad</Button>
+                            </Card.Content>
+                        </Card>
+                    )}
                 </View>
             </View>
         </SafeAreaView>
@@ -352,7 +364,3 @@ const styles = StyleSheet.create({
         height: '80%',
     },
 })
-
-function setErrorMsg(arg0: string) {
-    throw new Error('Function not implemented.');
-}

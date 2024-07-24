@@ -4,10 +4,12 @@ import { Button, Dialog, PaperProvider, Portal, TextInput, TouchableRipple } fro
 import { TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { login } from '../constants/apiService';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LoginScreen = ({ navigation }: any) => {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
+  // const [loginStatus, setLoginStatus] = React.useState(false);
   const [clientDialogVisible, setClientDialogVisible] = React.useState(false);
   const [VendorDialogVisible, setVendorDialogVisible] = React.useState(false);
   const showClientDialog = () => setClientDialogVisible(true);
@@ -27,10 +29,14 @@ const LoginScreen = ({ navigation }: any) => {
   const handleLogin = async () => {
     try {
       const data = await login(email, password);
-      console.log("Login response---->",data?.token)
-      if(data?.token){
-      navigateToUserHomeScreen()
-      Alert.alert('Login Successful');
+      if (data?.token) {
+        if (data?.user.accountType === "customer") {
+          navigateToUserHomeScreen();
+        } else if (data?.user.accountType === "vendor") {
+          navigateToVendorHomeScreen();
+        }
+        await AsyncStorage.setItem('userDetails', JSON.stringify(data.user)); // Store user data as a JSON string
+        Alert.alert('Login Successful');
       }
     } catch (error) {
       Alert.alert('Invalid Credentials');
@@ -40,59 +46,33 @@ const LoginScreen = ({ navigation }: any) => {
   return (
     <PaperProvider>
       <View style={styles.background}>
-        <View style={{alignItems: 'center'}}><Text style={{ position: 'absolute', fontSize: 16, fontWeight: 'bold', marginTop: 60 }}>Login to your account</Text></View>
+        <View style={{ alignItems: 'center' }}><Text style={{ position: 'absolute', fontSize: 16, fontWeight: 'bold', marginTop: 60 }}>Login to your account</Text></View>
         <View style={styles.loginStyle}>
-        <Text style={{ position: 'absolute', marginTop: 45, marginLeft: 20, fontSize: 16 }}>Email: </Text>
-        <Text style={{ position: 'absolute', marginTop: 135, marginLeft: 20, fontSize: 16 }}>Password: </Text>
-        <View style={{ height: 45, marginBottom: 20 }}>
-          <TextInput
-            placeholder="abc@xyz.com"
-            placeholderTextColor="grey"
-            onChangeText={(email) => setEmail(email)}
-            style={{ backgroundColor: 'darkseagreen', position: 'absolute', width: 210, height: 15, flex: 1, padding: 10, marginLeft: 100, marginTop: 25 }}
-          />
-          <TextInput
-            placeholder="Password"
-            placeholderTextColor="grey"
-            secureTextEntry={true}
-            onChangeText={(password) => setPassword(password)}
-            style={{ backgroundColor: 'darkseagreen', position: 'absolute', width: 210, height: 15, flex: 1, padding: 10, marginLeft: 100, marginTop: 115 }}
-          />
-          <View style={{ alignItems: 'center' }}>
-            <TouchableOpacity style={{ position: 'absolute', marginTop: 185 }}><Text style={{ textDecorationLine: 'underline' }}>Forgot Password?</Text></TouchableOpacity>
-            <Text style={{ position: 'absolute', marginTop: 220 }}>Don't have an account?</Text>
-            <TouchableOpacity style={{ position: 'absolute', marginTop: 240 }} onPress={navigateToSignUpScreen}><Text style={{ textDecorationLine: 'underline' }}>Sign Up</Text></TouchableOpacity>
-            <Button onPress={navigateToUserHomeScreen} style={{ position: 'absolute', marginTop: 270, backgroundColor: 'darkseagreen' }}><Text style={{ fontSize: 16, color: 'white' }}>CLIENT LOGIN</Text></Button>
-            <Button onPress={showVendorDialog} style={{ position: 'absolute', marginTop: 320, backgroundColor: 'darkseagreen' }}><Text style={{ fontSize: 16, color: 'white' }}>VENDOR LOGIN</Text></Button>
+          <Text style={{  marginTop: 45, marginLeft: 20, fontSize: 16 }}>Email: </Text>
+          
+          <View style={{ height: 45, marginBottom: 20 }}>
+            <TextInput
+              placeholder="abc@xyz.com"
+              placeholderTextColor="grey"
+              onChangeText={(e) => setEmail(e)}
+              style={{ backgroundColor: 'darkseagreen', width: '90%', height: 15, flex: 1, padding: 17, marginTop: 20, marginLeft: 20 }}
+            />
+            <Text style={{  marginTop: 20, marginLeft: 20, fontSize: 16 }}>Password: </Text>
+            <TextInput
+              placeholder="Password"
+              placeholderTextColor="grey"
+              secureTextEntry={true}
+              onChangeText={(password) => setPassword(password)}
+              style={{ backgroundColor: 'darkseagreen', width: '90%', height: 15, flex: 1, padding: 17, marginTop: 20, marginLeft: 20 }}
+            />
+            <View style={{ alignItems: 'center' }}>
+              <TouchableOpacity style={{  marginTop: 20 }}><Text style={{ textDecorationLine: 'underline' }}>Forgot Password?</Text></TouchableOpacity>
+              <Text style={{  marginTop: 20 }}>Don't have an account?</Text>
+              <TouchableOpacity style={{  marginTop: 20 }} onPress={navigateToSignUpScreen}><Text style={{ textDecorationLine: 'underline' }}>Sign Up</Text></TouchableOpacity>
+              <Button onPress={handleLogin} style={{ marginTop: 20, backgroundColor: 'darkseagreen' }}><Text style={{ fontSize: 16, color: 'white' }}>LOGIN</Text></Button>
+            </View>
           </View>
         </View>
-        <View>
-          <Portal>
-            <Dialog visible={clientDialogVisible} onDismiss={hideClientDialog} style={{ backgroundColor: 'lightgreen' }}>
-              <Dialog.Title>Client Login</Dialog.Title>
-              <Dialog.Content>
-                <Text>Your Login Was Successful</Text>
-              </Dialog.Content>
-              <Dialog.Actions>
-                <Button onPress={navigateToUserHomeScreen}><Text style={{ color: 'darkgreen' }}>Done</Text></Button>
-              </Dialog.Actions>
-            </Dialog>
-          </Portal>
-          </View>
-          <View>
-          <Portal>
-            <Dialog visible={VendorDialogVisible} onDismiss={hideVendorDialog} style={{ backgroundColor: 'lightgreen' }}>
-              <Dialog.Title>Vendor Login</Dialog.Title>
-              <Dialog.Content>
-                <Text>Your Login Was Successful</Text>
-              </Dialog.Content>
-              <Dialog.Actions>
-                <Button onPress={navigateToVendorHomeScreen}><Text style={{ color: 'darkgreen' }}>Done</Text></Button>
-              </Dialog.Actions>
-            </Dialog>
-          </Portal>
-          </View>
-      </View>
       </View>
     </PaperProvider>
   )
@@ -123,8 +103,8 @@ const styles = StyleSheet.create({
     padding: 16,
     margin: 16,
     height: 450,
-    flex:0,
-    marginTop:130,
+    flex: 0,
+    marginTop: 130,
   },
   background: {
     backgroundColor: 'darkseagreen'

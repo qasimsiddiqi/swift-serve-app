@@ -1,7 +1,7 @@
 import { Dimensions, Modal, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native'
 import React from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { Appbar, Drawer, IconButton, Portal, RadioButton, Button } from 'react-native-paper'
+import { Appbar, Drawer, IconButton, Portal, RadioButton, Button, Divider } from 'react-native-paper'
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { SelectList } from 'react-native-dropdown-select-list';
 
@@ -87,11 +87,12 @@ const UserDrawer = ({ navigation }: any) => {
       </Appbar.Header>
       <Animated.View style={[styles.drawer, drawerAnimatedStyle]}>
         <ScrollView>
-        <Text>Welcome User</Text>
+        <Text style={{fontSize: 20, fontWeight: 'bold'}}>Welcome {'\n'} To</Text>
         <Image
-          source={require('../../assets/SwiftServe Logo.png')}
+          source={require('../../assets/SwiftServe_Logo-removebg.png')}
           style={styles.logo}
         />
+        <Divider style={styles.divider}></Divider>
         <Drawer.Item
           style={styles.drawerItem}
           icon="home"
@@ -148,11 +149,16 @@ export default UserDrawer
 
 const styles = StyleSheet.create({
   logo: {
-    width: '50%',
+    width: '100%',
     height: 100,
     resizeMode: 'contain',
     marginBottom: 20,
   },
+  divider: {
+    backgroundColor: 'black',
+    height: 2,
+    marginVertical: 10,
+},
   drawer: {
     position: 'absolute',
     top: 0,

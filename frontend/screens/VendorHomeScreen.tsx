@@ -10,10 +10,23 @@ const VendorHomeScreen = ({ navigation }: any) => {
   return (
     <SafeAreaView style={styles.container}>
       <View>
-        <VendorDrawer navigation={navigation}/>
-          <View style={styles.content}>
-        <Text>Vendor Home Screen Content</Text>
-      </View>
+        <VendorDrawer navigation={navigation} />
+        <View style={styles.content}>
+          <View style={styles.grid}>
+            <View style={styles.gridItem}>
+              <Text>Item 1</Text>
+            </View>
+            <View style={styles.gridItem}>
+              <Text>Item 2</Text>
+            </View>
+            <View style={styles.gridItem}>
+              <Text>Item 3</Text>
+            </View>
+            <View style={styles.gridItem}>
+              <Text>Item 4</Text>
+            </View>
+          </View>
+        </View>
       </View>
     </SafeAreaView>
   )
@@ -22,47 +35,31 @@ const VendorHomeScreen = ({ navigation }: any) => {
 export default VendorHomeScreen
 
 const styles = StyleSheet.create({
-  menuButton: {
-    backgroundColor: '#66cdaa',
-    marginLeft: 10,
-    borderRadius: 10,
-    marginBottom: 25
-  },
   container: {
     flex: 1
-  },
-  drawer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: width * 0.75,
-    height: height,
-    backgroundColor: '#ffffff',
-    zIndex: 10,
-    padding: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 2, height: 2 },
-    shadowOpacity: 0.8,
-    shadowRadius: 2,
-    elevation: 5,
-  },
-  drawerItem: {
-    // backgroundColor: '#66cdaa',
-    marginVertical: 5,
-    borderRadius: 20
-  },
-  closeDrawerButton: {
-    marginTop: 20,
-    padding: 10,
-    backgroundColor: '#66cdaa',
-    borderRadius: 5,
-  },
-  closeDrawerButtonText: {
-    textAlign: 'center',
-    color: 'white',
   },
   content: {
     marginTop: 20,
     alignItems: 'center',
+  },
+  grid: {
+    width: '90%',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  gridItem: {
+    width: '48%',
+    height: height * 0.3,
+    backgroundColor: 'white',
+    marginVertical: 10,
+    alignItems: 'center',
+    // justifyContent: 'center',
+    borderRadius: 8,
+    shadowColor: 'black',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4, // for Android shadow
   },
 })
