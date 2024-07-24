@@ -2,6 +2,8 @@ import { StyleSheet, Text, View, Image } from 'react-native'
 import React from 'react'
 import { Button } from 'react-native-paper'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import Colors from '../constants/Colors'
+import { ScrollView } from 'react-native-gesture-handler'
 
 
 const SignUpScreen1 = ({ navigation }: any) => {
@@ -14,17 +16,19 @@ const SignUpScreen1 = ({ navigation }: any) => {
     }
     return (
         <SafeAreaView>
+            <ScrollView>
             <View style={styles.hero}>
                 <View style={styles.content}>
-                    <Image source={{ uri: 'SwiftServe Logo 2.png' }} />
+                    <Image source={require('../assets/SwiftServe_Logo-removebg.png')} style={styles.logo} />
                     <View style={styles.header}>
                         <Text style={styles.title}>Book Your Services{'\n'}with SwiftServe</Text>
                     </View>
                 </View>
             </View>
             <Text style={styles.message}>Finding Services made much easier</Text>
-            <Button onPress={navigateToLoginScreen} style={{ backgroundColor: 'darkseagreen', margin: 20 }}><Text style={{ fontSize: 16, color: 'darkgreen' }}>Login</Text></Button>
-            <Button onPress={navigateToSignUpScreen} style={{ backgroundColor: 'darkseagreen', margin: 20 }}><Text style={{ fontSize: 16, color: 'darkgreen' }}>Signup</Text></Button>
+            <Button onPress={navigateToLoginScreen} style={{ backgroundColor: 'limegreen', margin: 20 }}><Text style={{ fontSize: 16, color: 'darkgreen' }}>Login</Text></Button>
+            <Button onPress={navigateToSignUpScreen} style={{ backgroundColor: 'limegreen', margin: 20 }}><Text style={{ fontSize: 16, color: 'darkgreen' }}>Signup</Text></Button>
+            </ScrollView>
         </SafeAreaView>
     )
 }
@@ -32,8 +36,14 @@ const SignUpScreen1 = ({ navigation }: any) => {
 export default SignUpScreen1
 
 const styles = StyleSheet.create({
-    content: {
-        padding: 24
+    logo: {
+        width: '100%',
+        height: 150,
+        resizeMode: 'contain',
+        marginBottom: 10,
+    },
+    content:{
+        padding:24
     },
     header: {
         paddingHorizontal: 24
@@ -47,7 +57,7 @@ const styles = StyleSheet.create({
         marginBottom: 12,
     },
     message: {
-        fontSize: 15,
+        fontSize: 18,
         lineHeight: 24,
         fontWeight: '400',
         color: '#9992a7',

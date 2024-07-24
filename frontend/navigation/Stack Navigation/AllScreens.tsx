@@ -20,6 +20,7 @@ import VendorDrawer from '../Drawer/VendorDrawer';
 import UserDrawer from '../Drawer/UserDrawer';
 import VendorBookings from '../../screens/VendorBookings';
 import VendorAds from '../../screens/VendorAds';
+import MapViewComponent from '../../screens/MapViewComponent';
 export type stackScreens = {
     SignUpScreen1: undefined;
     AdScreen: undefined;
@@ -39,6 +40,7 @@ export type stackScreens = {
     UserDrawer: undefined;
     VendorBookings: undefined;
     VendorAds: undefined;
+    MapViewComponent: undefined
 }
 
 const Stack = createNativeStackNavigator<stackScreens>();
@@ -46,10 +48,6 @@ const Stack = createNativeStackNavigator<stackScreens>();
 const AllScreens = () => {
     return (
             <Stack.Navigator initialRouteName='SignUpScreen1' screenOptions={{ headerBackTitle: "back", headerShown:false }}>
-                <Stack.Screen
-                    name="DrawerScreens"
-                    component={DrawerScreens}
-                />
                 <Stack.Screen
                     name="SignUpScreen1"
                     component={SignUpScreen1}
@@ -105,6 +103,10 @@ const AllScreens = () => {
                 <Stack.Screen
                     name="VendorAds"
                     component={VendorAds}
+                />
+                <Stack.Screen
+                    name="MapViewComponent"
+                    component={MapViewComponent}
                 />
             </Stack.Navigator>
     )

@@ -1,9 +1,10 @@
 import { StyleSheet, Text, Touchable, View } from 'react-native';
 import React from 'react';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { Card, IconButton, SegmentedButtons } from 'react-native-paper';
 import Icon from 'react-native-fontawesome';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import UserDrawer from '../navigation/Drawer/UserDrawer';
 
 const MyBookings = ({navigation}: any) => {
   const [value, setValue] = React.useState('pending');
@@ -74,7 +75,8 @@ const MyBookings = ({navigation}: any) => {
   };
 
   return (
-    <SafeAreaProvider>
+    <SafeAreaView>
+      <UserDrawer navigation={navigation} />
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.title}>My Bookings</Text>
@@ -94,7 +96,7 @@ const MyBookings = ({navigation}: any) => {
           {renderContent()}
         </View>
       </View>
-    </SafeAreaProvider>
+    </SafeAreaView>
   );
 };
 
@@ -102,8 +104,8 @@ export default MyBookings;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    paddingTop: 50,
+    // flex: 1,
+    paddingTop: 20,
   },
   header: {
     alignItems: 'center',
@@ -118,12 +120,13 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   contentContainer: {
-    flex: 1,
+    // flex: 1,
     padding: 20,
   },
   tabContent: {
     fontSize: 16,
     textAlign: 'center',
-    marginTop: 20,
+    marginTop: 10,
+    marginBottom: 10
   },
 });

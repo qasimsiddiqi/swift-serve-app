@@ -1,7 +1,7 @@
 import { Alert, Platform, SafeAreaView, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
 import React, { Component } from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { Avatar, IconButton, ToggleButton, Text, Button, Portal, Modal, TextInput, Menu, MD3Colors } from 'react-native-paper';
+import { Avatar, IconButton, ToggleButton, Text, Button, Portal, Modal, TextInput, Menu, MD3Colors, Card } from 'react-native-paper';
 import { Calendar } from 'react-native-calendars';
 import CarouselCard from '../components/CarouselCard';
 import { SelectList } from 'react-native-dropdown-select-list';
@@ -9,6 +9,7 @@ import FontAwesome, { SolidIcons, RegularIcons, BrandIcons } from 'react-native-
 import Icon from 'react-native-fontawesome';
 import { MaterialIcons } from '@expo/vector-icons';
 import StarRating from '../components/StarRating';
+import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createBooking, createReview } from '../constants/apiService';
 
@@ -110,6 +111,30 @@ const AdScreen = ({ route, navigation }: any) => {
   const [visible, setVisible] = React.useState(false);
   const [selected, setSelected] = React.useState("");
   const [starRating, setStarRating] = React.useState(0);
+  const [date, setDate] = React.useState(new Date());
+  const [mode, setMode] = React.useState<'date' | 'time'>('date');
+  const [show, setShow] = React.useState(false);
+
+  const onChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
+    const currentDate = selectedDate || date;
+    setShow(Platform.OS === 'ios');
+    if (selectedDate && selectedDate > new Date()) {
+      setDate(currentDate);
+    }
+  };
+
+  const showMode = (currentMode: 'date' | 'time') => {
+    setShow(true);
+    setMode(currentMode);
+  };
+
+  const showDatepicker = () => {
+    showMode('date');
+  };
+
+  const showTimepicker = () => {
+    showMode('time');
+  };
   const [review, setReview] = React.useState('');
 
   const handleDayPress = (day: { dateString: React.SetStateAction<string>; }) => {
@@ -158,7 +183,7 @@ const AdScreen = ({ route, navigation }: any) => {
       if (userDetails !== null) {
         const userResponse = JSON.parse(userDetails); // Parse the JSON string back to an object
         const userId = userResponse?._id;
-        const bookingDetails = { user: userId, adsPost: adDetails._id, serviceName: adDetails.serviceName, date: selectedDate, time: selected };
+        const bookingDetails = { user: userId, adsPost: adDetails._id, serviceName: adDetails.serviceName, date };
         const response = await createBooking(bookingDetails);
         console.log("Res", response)
         Alert.alert('Success', 'Booked successfully.');
@@ -201,54 +226,24 @@ const AdScreen = ({ route, navigation }: any) => {
                   <Text style={{ marginTop: 10, fontSize: 16 }}>Requested Service: </Text>
                   <TextInput style={{ marginTop: 10, height: 45 }}></TextInput>
                   <Text style={{ marginTop: 10, fontSize: 16 }}>Date: </Text>
-                  <View style={{ width: 100, borderColor: 'black', borderWidth: 1, marginTop: 5, marginLeft: 130 }}>
-                    <Text style={{ textAlign: 'center', fontSize: 16 }}>{selectedDate}</Text>
+                  <View>
+                    <Button onPress={showDatepicker}>Pick a Date</Button>
                   </View>
-                  <Button onPress={toggleCalendarVisibility} style={{ alignItems: 'center', position: 'absolute', marginTop: 132, marginLeft: 30 }}>
-                    <Text style={{ textDecorationLine: 'underline' }}>Select Date</Text>
-                  </Button>
-                  {calendarVisible && (
-                    <Calendar
-                      onDayPress={handleDayPress}
-                      markedDates={{
-                        [selectedDate]: { selected: true, marked: true, selectedColor: 'blue' },
-                      }} />
-                  )}
                   <Text style={{ marginTop: 10, fontSize: 16 }}>Time: </Text>
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                    <SelectList
-                      // onSelect={() => alert(selected)}
-                      setSelected={setSelected}
-                      data={hours}
-                      arrowicon={<IconButton icon={'chevron-down'} size={20} style={{ alignSelf: 'center' }} />}
-                      searchicon={<IconButton icon={'chevron-down'} size={10} style={{}} />}
-                      search={false}
-                      boxStyles={{ borderRadius: 0, width: 100, marginTop: 10, height: 50 }} //override default styles
-                      inputStyles={{ fontSize: 16, textAlign: 'center' }}
-                      defaultOption={{ key: '1', value: 'Hour' }}   //default selected option
-                    />
-                    <SelectList
-                      // onSelect={() => alert(selected)}
-                      setSelected={setSelected}
-                      data={minutes}
-                      arrowicon={<IconButton icon={'chevron-down'} size={20} style={{ alignSelf: 'center', marginLeft: -10 }} />}
-                      searchicon={<IconButton icon={'chevron-down'} size={10} />}
-                      search={false}
-                      boxStyles={{ borderRadius: 0, width: 100, marginTop: 10, height: 50 }} //override default styles
-                      inputStyles={{ fontSize: 16, textAlign: 'center' }}
-                      defaultOption={{ key: '1', value: 'Minutes' }}   //default selected option
-                    />
-                    <SelectList
-                      // onSelect={() => alert(selected)}
-                      setSelected={setSelected}
-                      data={timeOfDay}
-                      arrowicon={<IconButton icon={'chevron-down'} size={20} style={{ alignSelf: 'center', marginLeft: 20 }} />}
-                      searchicon={<IconButton icon={'chevron-down'} size={10} style={{}} />}
-                      search={false}
-                      boxStyles={{ borderRadius: 0, width: 100, marginTop: 10, height: 50 }} //override default styles
-                      inputStyles={{ fontSize: 16, textAlign: 'center' }}
-                      defaultOption={{ key: '1', value: 'Am' }}   //default selected option
-                    />
+                  <View>
+                    <Button onPress={showTimepicker}>Pick a Time</Button>
+                    <Text style={{ marginTop: 10, fontSize: 16 }}>Selected Date & Time: </Text><Text style={{ marginTop: 10, fontSize: 16, textAlign: 'center' }}>{date.toLocaleString()}</Text>
+                    {show && (
+                      <DateTimePicker
+                        testID="dateTimePicker"
+                        value={date}
+                        mode={mode}
+                        is24Hour={false}
+                        display="default"
+                        onChange={onChange}
+                        minimumDate={new Date()}
+                      />
+                    )}
                   </View>
                   <Button onPress={handleCreateBooking} mode='contained' style={{ backgroundColor: 'darkseagreen', paddingTop: 5, marginRight: 90, marginLeft: 90, marginTop: 40 }}><Text>Book Now</Text></Button>
                 </ScrollView>
@@ -354,9 +349,18 @@ const AdScreen = ({ route, navigation }: any) => {
           <View style={{ borderColor: 'black', borderRadius: 5, paddingBottom: 20, borderWidth: 1, margin: 5, justifyContent: 'center' }}>
             <Text variant='titleMedium' style={{ paddingTop: 20, paddingLeft: 5, fontWeight: 'bold' }}>Reviews and Ratings</Text>
             <Text variant="bodyMedium" style={{ paddingTop: 5, paddingLeft: 5 }}>Reviews and ratings of the Vendor will appear here</Text>
+            <Card style={{ backgroundColor: 'darkgrey', marginTop: 5, marginLeft: 5, marginRight: 5 }}>
+              <Card.Title titleVariant='titleMedium' title='Qasim' style={{ top: 0, backgroundColor: 'grey' }} />
+              <Card.Content style={{ marginBottom: 5 }}>
+                <Text variant="bodyMedium">
+                  I recently visited Clip & Style Barbershop and had an outstanding experience. From the moment I walked in, I was greeted with a warm welcome and a friendly smile. The shop's atmosphere was modern yet cozy, with comfortable seating and a clean, organized setup.
+                </Text>
+              </Card.Content>
+            </Card>
             <Button onPress={showRatingModal} mode='contained' style={{ backgroundColor: 'darkseagreen', paddingTop: 5, marginRight: 70, marginLeft: 70, marginTop: 10 }}><Text>Add a Review</Text></Button>
+            {/* </ScrollView> */}
           </View>
-          <Button onPress={showBookingModal} mode='contained' style={{ backgroundColor: 'darkseagreen', paddingTop: 5, marginRight: 100, marginLeft: 100, marginTop: 10 }}><Text>Book Now</Text></Button>
+          <Button onPress={showBookingModal} mode='contained' style={{ backgroundColor: 'darkseagreen', paddingTop: 5, marginRight: 100, marginLeft: 100, marginTop: 10, marginBottom: 10 }}><Text>Book Now</Text></Button>
         </View>
       </ScrollView>
     </SafeAreaProvider>

@@ -4,8 +4,8 @@ const reviews = require('../models/reviews');
 exports.createAdsPost = async (req, res) => {
     try {
         // console.log("Backend ads function called", req.body);
-        const { serviceName, serviceDetails, serviceType, images, location, user } = req.body;
-        const adsPost = new AdsPost({ serviceName, serviceDetails, serviceType, images, location, user });
+        const { serviceName, serviceDetails, serviceType, images, location, user, price } = req.body;
+        const adsPost = new AdsPost({ serviceName, serviceDetails, serviceType, images, location, user, price });
         // console.log("Ads res backend", adsPost);
         await adsPost.save();
         res.status(201).json({ message: 'Ads post created successfully.' });
