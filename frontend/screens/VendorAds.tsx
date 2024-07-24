@@ -15,7 +15,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const { width } = Dimensions.get('window');
 const { height } = Dimensions.get('window');
 
-const VendorAds = ({ navigation }: any) => {
+const VendorAds = ({ navigation,item }: any) => {
 
     const [active, setActive] = React.useState('');
     const [drawerOpen, setDrawerOpen] = React.useState(false);
@@ -157,6 +157,7 @@ const VendorAds = ({ navigation }: any) => {
                 const response = await createAdsPost(adsPost);
                 setAds(true);
                 Alert.alert('Success', 'Ads post created successfully.');
+                hideAdModal();
             }
 
         } catch (error: any) {
@@ -250,11 +251,11 @@ const VendorAds = ({ navigation }: any) => {
                         <Text style={{ marginTop: 20, fontSize: 16 }}>No Service Ads Found</Text>
                     ) : (
                         <Card style={{ width: '90%', marginTop: 10 }}>
-                            <Card.Cover />
-                            <Card.Title title="Ad Name" />
+                            <Card.Cover source={{ uri: item.images[0] }} />
+                            <Card.Title title={serviceName} />
                             <Card.Content>
-                                <Text>Price: </Text>
-                                <Text>Description: </Text>
+                                <Text>Price: {servicePrice}</Text>
+                                <Text>Description: {serviceDetails}</Text>
                                 <Button mode='contained' style={{ marginTop: 10, backgroundColor: 'red', width: '50%' }}>Delete Ad</Button>
                             </Card.Content>
                         </Card>
