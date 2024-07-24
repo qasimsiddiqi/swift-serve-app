@@ -64,7 +64,7 @@ const VendorAds = ({ navigation }: any) => {
         // navigation.setOptions({
         //     params: { setLocation: handleSetLocation },
         //   });
-        navigation.navigate('MapViewComponent',  { setLocation: handleSetLocation });
+        navigation.navigate('MapViewComponent', { setLocation: handleSetLocation });
         hideAdModal();
     }
 
@@ -72,7 +72,7 @@ const VendorAds = ({ navigation }: any) => {
         setLocation(newLocation);
         setAddress(newAddress);
         showAdModal();
-      };
+    };
 
     const activeTintColor = 'green';
     const inactiveTintColor = 'black';
@@ -153,9 +153,9 @@ const VendorAds = ({ navigation }: any) => {
             if (userDetails !== null) {
                 const userResponse = JSON.parse(userDetails); // Parse the JSON string back to an object
                 const user = userResponse?._id;
-                const adsPost = { serviceName, serviceDetails, serviceType, images, location, user };
+                const adsPost = { serviceName, serviceDetails, serviceType, images, location, user, price: servicePrice };
                 const response = await createAdsPost(adsPost);
-                setAds(true); 
+                setAds(true);
                 Alert.alert('Success', 'Ads post created successfully.');
             }
 
@@ -166,7 +166,7 @@ const VendorAds = ({ navigation }: any) => {
 
     return (
         <SafeAreaView style={styles.container}>
-                <View>
+            <View>
                 <Portal>
                     <Modal
                         visible={adModalVisible}
@@ -233,7 +233,7 @@ const VendorAds = ({ navigation }: any) => {
                                         <Image key={index} source={{ uri: img }} style={styles.image} />
                                     ))}
                                 </View>
-                                <Button mode='contained' style={{backgroundColor:'darkseagreen'}} onPress={handleCreatePost}>Create Ad</Button>
+                                <Button mode='contained' style={{ backgroundColor: 'darkseagreen' }} onPress={handleCreatePost}>Create Ad</Button>
                             </ScrollView>
                         </View>
                     </Modal>
@@ -249,13 +249,13 @@ const VendorAds = ({ navigation }: any) => {
                     {!ads ? (
                         <Text style={{ marginTop: 20, fontSize: 16 }}>No Service Ads Found</Text>
                     ) : (
-                        <Card style={{width: '90%', marginTop: 10}}>
+                        <Card style={{ width: '90%', marginTop: 10 }}>
                             <Card.Cover />
-                            <Card.Title title="Ad Name"/>
+                            <Card.Title title="Ad Name" />
                             <Card.Content>
                                 <Text>Price: </Text>
                                 <Text>Description: </Text>
-                                <Button mode='contained' style={{marginTop: 10, backgroundColor:'red', width: '50%'}}>Delete Ad</Button>
+                                <Button mode='contained' style={{ marginTop: 10, backgroundColor: 'red', width: '50%' }}>Delete Ad</Button>
                             </Card.Content>
                         </Card>
                     )}

@@ -6,7 +6,6 @@ const bookingSchema = new Schema({
     adsPost: { type: mongoose.Schema.Types.ObjectId, ref: 'AdsPost', required: true },
     serviceName: { type: String, required: true },
     date: { type: Date, required: true },
-    time: { type: String, required: true }
 });
 
 module.exports = mongoose.model('Booking', bookingSchema);

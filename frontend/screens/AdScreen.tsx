@@ -183,7 +183,7 @@ const AdScreen = ({ route, navigation }: any) => {
       if (userDetails !== null) {
         const userResponse = JSON.parse(userDetails); // Parse the JSON string back to an object
         const userId = userResponse?._id;
-        const bookingDetails = { user: userId, adsPost: adDetails._id, serviceName: adDetails.serviceName, date: selectedDate, time: selected };
+        const bookingDetails = { user: userId, adsPost: adDetails._id, serviceName: adDetails.serviceName, date };
         const response = await createBooking(bookingDetails);
         console.log("Res", response)
         Alert.alert('Success', 'Booked successfully.');
@@ -349,7 +349,7 @@ const AdScreen = ({ route, navigation }: any) => {
           <View style={{ borderColor: 'black', borderRadius: 5, paddingBottom: 20, borderWidth: 1, margin: 5, justifyContent: 'center' }}>
             <Text variant='titleMedium' style={{ paddingTop: 20, paddingLeft: 5, fontWeight: 'bold' }}>Reviews and Ratings</Text>
             <Text variant="bodyMedium" style={{ paddingTop: 5, paddingLeft: 5 }}>Reviews and ratings of the Vendor will appear here</Text>
-            <Card style={{backgroundColor:'darkgrey', marginTop: 5, marginLeft: 5, marginRight: 5}}>
+            <Card style={{ backgroundColor: 'darkgrey', marginTop: 5, marginLeft: 5, marginRight: 5 }}>
               <Card.Title titleVariant='titleMedium' title='Qasim' style={{ top: 0, backgroundColor: 'grey' }} />
               <Card.Content style={{ marginBottom: 5 }}>
                 <Text variant="bodyMedium">

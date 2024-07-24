@@ -3,8 +3,8 @@ const mongoose = require('mongoose');
 
 exports.createBooking = async (req, res) => {
     try {
-        const { user, adsPost, serviceName, date, time } = req.body;
-        const booking = new Booking({ user, adsPost, serviceName, date, time });
+        const { user, adsPost, serviceName, date } = req.body;
+        const booking = new Booking({ user, adsPost, serviceName, date });
         await booking.save();
         res.status(201).json({ message: 'Booking created successfully.' });
     } catch (error) {
