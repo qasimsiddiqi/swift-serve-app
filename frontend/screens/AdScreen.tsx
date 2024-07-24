@@ -15,7 +15,6 @@ import { createBooking, createReview } from '../constants/apiService';
 
 const AdScreen = ({ route, navigation }: any) => {
   const { adDetails } = route.params;
-
   const hours = [
     { key: '1', value: 'Hour' },
     { key: '2', value: '01' },
@@ -340,7 +339,7 @@ const AdScreen = ({ route, navigation }: any) => {
           />
           <Text variant='titleLarge' style={{ paddingTop: 5, paddingLeft: 5, fontWeight: 'bold' }}>{adDetails.serviceName}</Text>
           <Text variant='titleMedium' style={{ paddingTop: 5, paddingLeft: 5, fontWeight: 'bold' }}>{adDetails.vendorName}</Text>
-          <IconButton icon='google-maps' style={{}} /><Text style={{ marginLeft: 30 }}>{adDetails.location}</Text>
+          <IconButton icon='google-maps' /><Text style={{ marginLeft: 30 }}>Longitude: {adDetails.location.longitude} Latitude: {adDetails.location.latitude}</Text>
           <Text variant='titleMedium' style={{ paddingTop: 20, paddingLeft: 5, fontWeight: 'bold' }}>{adDetails.serviceDetails}</Text>
           <Text variant="bodyMedium" style={{ paddingTop: 5, paddingLeft: 5 }}>{adDetails.description}</Text>
           <Text variant='titleMedium' style={{ paddingTop: 20, paddingLeft: 5, fontWeight: 'bold' }}>Service Catalog</Text>
