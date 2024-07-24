@@ -153,7 +153,7 @@ const AdScreen = ({ route, navigation }: any) => {
     setstatus(status === false ? true : false);
   }
   const navigateToRating = () => {
-    navigation.navigate('Rating And Review')
+    navigation.navigate('RatingAndReview')
   }
 
   const showBookingModal = () => setBookingModalVisible(true);
@@ -210,6 +210,9 @@ const AdScreen = ({ route, navigation }: any) => {
     }
   };
 
+  const navigateToReviews = () => {
+    navigation.navigate('RatingAndReview');
+  }
 
   return (
     <SafeAreaProvider>
@@ -319,12 +322,6 @@ const AdScreen = ({ route, navigation }: any) => {
           <View>
             <StarRating rating={3}></StarRating>
           </View>
-          <Avatar.Icon
-            icon="check-decagram"
-            size={35}
-            style={{ position: 'absolute', top: 265, right: 220, backgroundColor: 'transparent' }}
-            color='blue'
-          />
           <IconButton
             icon='share-variant'
             size={20}
@@ -337,25 +334,17 @@ const AdScreen = ({ route, navigation }: any) => {
             size={25}
             style={{ position: 'absolute', top: 200, right: 2 }}
           />
-          <Text variant='titleLarge' style={{ paddingTop: 5, paddingLeft: 5, fontWeight: 'bold' }}>{adDetails.serviceName}</Text>
+          <Text variant='titleLarge' style={{ marginLeft: 5, paddingTop: 5, paddingLeft: 5, fontWeight: 'bold' }}>{adDetails.serviceName}</Text>
           <Text variant='titleMedium' style={{ paddingTop: 5, paddingLeft: 5, fontWeight: 'bold' }}>{adDetails.vendorName}</Text>
           <IconButton icon='google-maps' /><Text style={{ marginLeft: 30 }}>Longitude: {adDetails.location.longitude} Latitude: {adDetails.location.latitude}</Text>
-          <Text variant='titleMedium' style={{ paddingTop: 20, paddingLeft: 5, fontWeight: 'bold' }}>{adDetails.serviceDetails}</Text>
+          <Text variant='titleMedium' style={{ paddingTop: 20, paddingLeft: 5, fontWeight: 'bold' }}>Description: </Text>
+          <Text variant='titleMedium' style={{ paddingTop: 20, paddingLeft: 5 }}>{adDetails.serviceDetails}</Text>
           <Text variant="bodyMedium" style={{ paddingTop: 5, paddingLeft: 5 }}>{adDetails.description}</Text>
-          <Text variant='titleMedium' style={{ paddingTop: 20, paddingLeft: 5, fontWeight: 'bold' }}>Service Catalog</Text>
-          <Text variant="bodyMedium" style={{ paddingTop: 5, paddingLeft: 5 }}>{adDetails.serviceCatalog}</Text>
-          <Text variant="bodyMedium" style={{ paddingTop: 5, paddingLeft: 5 }}>Complete Service Catalog of the Vendor will appear here</Text>
+          {/* <Text variant='titleMedium' style={{ paddingTop: 20, paddingLeft: 5, fontWeight: 'bold' }}>Service Catalog</Text> */}
           <View style={{ borderColor: 'black', borderRadius: 5, paddingBottom: 20, borderWidth: 1, margin: 5, justifyContent: 'center' }}>
             <Text variant='titleMedium' style={{ paddingTop: 20, paddingLeft: 5, fontWeight: 'bold' }}>Reviews and Ratings</Text>
-            <Text variant="bodyMedium" style={{ paddingTop: 5, paddingLeft: 5 }}>Reviews and ratings of the Vendor will appear here</Text>
-            <Card style={{ backgroundColor: 'darkgrey', marginTop: 5, marginLeft: 5, marginRight: 5 }}>
-              <Card.Title titleVariant='titleMedium' title='Qasim' style={{ top: 0, backgroundColor: 'grey' }} />
-              <Card.Content style={{ marginBottom: 5 }}>
-                <Text variant="bodyMedium">
-                  I recently visited Clip & Style Barbershop and had an outstanding experience. From the moment I walked in, I was greeted with a warm welcome and a friendly smile. The shop's atmosphere was modern yet cozy, with comfortable seating and a clean, organized setup.
-                </Text>
-              </Card.Content>
-            </Card>
+            {/* <Text variant="bodyMedium" style={{ paddingTop: 5, paddingLeft: 5 }}>Reviews and ratings of the Vendor will appear here</Text> */}
+            <Button onPress={navigateToRating} mode='contained' style={{ backgroundColor: 'darkseagreen', paddingTop: 5, marginRight: 70, marginLeft: 70, marginTop: 10 }}><Text>See Vendor Review</Text></Button>
             <Button onPress={showRatingModal} mode='contained' style={{ backgroundColor: 'darkseagreen', paddingTop: 5, marginRight: 70, marginLeft: 70, marginTop: 10 }}><Text>Add a Review</Text></Button>
             {/* </ScrollView> */}
           </View>
